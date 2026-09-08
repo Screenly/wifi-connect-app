@@ -17,34 +17,28 @@ function escapeWifiValue(value: string): string {
 
 interface Translation {
   eyebrow: string
-  passwordLabel: string
   openNetwork: string
 }
 
 const TRANSLATIONS: Record<string, Translation> = {
   en: {
     eyebrow: 'Scan to join the network',
-    passwordLabel: 'Password',
     openNetwork: 'Open network – no password needed',
   },
   fr: {
     eyebrow: 'Scannez pour rejoindre le réseau',
-    passwordLabel: 'Mot de passe',
     openNetwork: 'Réseau ouvert – aucun mot de passe requis',
   },
   de: {
     eyebrow: 'Scannen, um dem Netzwerk beizutreten',
-    passwordLabel: 'Passwort',
     openNetwork: 'Offenes Netzwerk – kein Passwort erforderlich',
   },
   es: {
     eyebrow: 'Escanea para unirte a la red',
-    passwordLabel: 'Contraseña',
     openNetwork: 'Red abierta – no se necesita contraseña',
   },
   pt: {
     eyebrow: 'Escaneie para entrar na rede',
-    passwordLabel: 'Senha',
     openNetwork: 'Rede aberta – nenhuma senha necessária',
   },
 }
@@ -97,29 +91,20 @@ async function renderQRCode(payload: string): Promise<void> {
   })
 }
 
+// Password is never rendered as text — the QR code is the only way to join a
+// secured network, so the credential can't be read off the screen by anyone
+// who doesn't have their phone camera ready.
 function renderCredentials(
   { ssid, password, security }: WifiCredentials,
   translation: Translation,
 ) {
   document.getElementById('ssid')!.textContent = ssid
   document.getElementById('eyebrow')!.textContent = translation.eyebrow
-  document.getElementById('password-label')!.textContent =
-    translation.passwordLabel
   document.getElementById('open-badge-text')!.textContent =
     translation.openNetwork
 
-  const passwordRow = document.getElementById('password-row')!
-  const openBadge = document.getElementById('open-badge')!
   const isOpen = security === 'nopass' || !password
-
-  if (isOpen) {
-    passwordRow.hidden = true
-    openBadge.hidden = false
-  } else {
-    document.getElementById('password')!.textContent = password
-    passwordRow.hidden = false
-    openBadge.hidden = true
-  }
+  document.getElementById('open-badge')!.hidden = !isOpen
 }
 
 async function render(): Promise<void> {

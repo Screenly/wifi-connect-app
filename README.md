@@ -2,7 +2,7 @@
 
 Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.
 
-Guests scan the on-screen QR code with their phone camera to join the network automatically — no typing required. The network name and password are also shown in large text as a fallback for people who'd rather type them in by hand.
+Guests scan the on-screen QR code with their phone camera to join the network automatically. The network name is shown as text for identification, but the password itself is never displayed — scanning the QR is the only way to connect, so it can't be read off the screen (or a photo of it) by anyone without their own phone in hand.
 
 ## Getting Started
 
@@ -52,7 +52,7 @@ Advanced settings:
 | `sentry_dsn`  | Sentry Client Key for error capturing                                                 | No       | —       |
 | `locale`      | Language for the on-screen text (`en`, `fr`, `de`, `es`, `pt`; falls back to English) | No       | `en`    |
 
-When `wifi_security` is `nopass`, or `wifi_password` is left blank, the app renders an open-network QR code and swaps the password display for an "Open network" badge instead.
+The password is only ever embedded in the QR code, never rendered as text. When `wifi_security` is `nopass`, or `wifi_password` is left blank, the app renders an open-network QR code and shows an "Open network" badge instead.
 
 ## Testing
 

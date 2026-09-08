@@ -15,10 +15,10 @@
     box-sizing: border-box;
   }
 
-  /* `.password-row`/`.status-badge` below set `display: flex`, which has the
-     same specificity as the UA stylesheet's `[hidden] { display: none }` and
+  /* `.status-badge` below sets `display: flex`, which has the same
+     specificity as the UA stylesheet's `[hidden] { display: none }` and
      would otherwise win by being declared later. Restate it explicitly so
-     toggling the `hidden` property from main.ts actually hides them. */
+     toggling the `hidden` property from main.ts actually hides it. */
   [hidden] {
     display: none !important;
   }
@@ -84,13 +84,15 @@
     background: color-mix(in srgb, var(--accent) 40%, #14b8a6);
   }
 
-  /* Main card */
+  /* Main card. Sized as a share of the viewport with no fixed pixel ceiling
+     — Screenly displays range from small signage strips to 4K+ totems, and
+     a px cap tuned for one leaves the card floating tiny on the other. */
   .card {
     position: relative;
     z-index: 1;
     display: flex;
-    width: min(94vw, 1760px);
-    height: min(90vh, 980px);
+    width: 92vw;
+    height: 88vh;
     background: linear-gradient(
       165deg,
       rgba(255, 255, 255, 0.07),
@@ -109,26 +111,29 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    padding: clamp(2.5rem, 4vw, 5rem);
+    padding: clamp(2rem, 4cqw, 5rem);
   }
 
   .panel--info {
     flex: 1.05 1 0;
     color: var(--ink);
-    gap: clamp(0.9rem, 1.6vh, 1.6rem);
+    gap: clamp(0.8rem, 2cqh, 1.6rem);
     min-width: 0;
+    /* Lets .eyebrow/.ssid scale off this panel's own box (cqw/cqh) instead
+       of the raw viewport, so text tracks the card's actual real estate. */
+    container-type: size;
   }
 
   .icon-badge {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(3.4rem, 4.4vw, 5rem);
-    height: clamp(3.4rem, 4.4vw, 5rem);
+    width: clamp(3rem, 6cqh, 6.5rem);
+    height: clamp(3rem, 6cqh, 6.5rem);
     border-radius: 999px;
     background: color-mix(in srgb, var(--accent) 24%, transparent);
     color: var(--accent);
-    margin-bottom: clamp(0.5rem, 1vh, 1rem);
+    margin-bottom: clamp(0.5rem, 2cqh, 1.2rem);
   }
 
   .icon-badge svg {
@@ -138,7 +143,7 @@
 
   .eyebrow {
     margin: 0;
-    font-size: clamp(1.1rem, 1.6vw, 1.7rem);
+    font-size: clamp(1.1rem, 4cqh, 2.4rem);
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--ink-dim);
@@ -147,7 +152,7 @@
   .ssid {
     margin: 0;
     max-width: 100%;
-    font-size: clamp(2.6rem, 6.2vw, 6.4rem);
+    font-size: clamp(2.4rem, min(9cqw, 14cqh), 9.5rem);
     line-height: 1.05;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -156,43 +161,17 @@
     overflow-wrap: anywhere;
   }
 
-  .password-row {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: clamp(0.5rem, 1vw, 1rem);
-    margin-top: clamp(0.4rem, 1vh, 0.8rem);
-  }
-
-  .password-label {
-    font-size: clamp(1rem, 1.4vw, 1.4rem);
-    font-weight: 600;
-    color: var(--ink-dim);
-  }
-
-  .password {
-    font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
-    font-size: clamp(1.6rem, 3vw, 3rem);
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    color: var(--ink);
-    padding: 0.15em 0.55em;
-    border-radius: 0.6em;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
   .status-badge {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    margin-top: clamp(0.4rem, 1vh, 0.8rem);
+    margin-top: clamp(0.4rem, 2cqh, 1rem);
     padding: 0.5em 1em;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--ink-dim);
-    font-size: clamp(1rem, 1.3vw, 1.35rem);
+    font-size: clamp(1rem, 3cqh, 1.8rem);
     font-weight: 600;
   }
 
@@ -208,17 +187,21 @@
     justify-content: center;
     background: rgba(255, 255, 255, 0.03);
     border-left: 1px solid rgba(255, 255, 255, 0.08);
+    /* Lets .qr-frame size itself off whichever of this panel's own
+       dimensions is tighter (cqw/cqh), so the QR fills a consistent share
+       of its panel on any resolution or aspect ratio, landscape or portrait. */
+    container-type: size;
   }
 
   .qr-frame {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: min(100%, 60vh);
+    width: min(78cqw, 78cqh);
     aspect-ratio: 1 / 1;
-    padding: clamp(1.4rem, 2.6vw, 2.6rem);
+    padding: clamp(1.2rem, 6cqw, 2.6rem);
     background: #ffffff;
-    border-radius: clamp(20px, 2vw, 36px);
+    border-radius: clamp(20px, 2cqw, 36px);
     box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.55);
   }
 
@@ -237,30 +220,22 @@
   @media (orientation: portrait) {
     .card {
       flex-direction: column;
-      width: min(94vw, 900px);
-      height: min(92vh, 1500px);
+      width: 92vw;
+      height: 92vh;
     }
 
     .panel--info {
       align-items: center;
       text-align: center;
       order: 2;
-      flex: 1 1 auto;
+      flex: 1 1 0;
     }
 
     .panel--qr {
       order: 1;
       border-left: none;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      flex: 1.1 1 auto;
-    }
-
-    .qr-frame {
-      width: min(80vw, 62vh);
-    }
-
-    .password-row {
-      justify-content: center;
+      flex: 1.1 1 0;
     }
   }
 }

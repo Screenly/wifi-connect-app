@@ -17,28 +17,34 @@ function escapeWifiValue(value: string): string {
 
 interface Translation {
   eyebrow: string
+  passwordLabel: string
   openNetwork: string
 }
 
 const TRANSLATIONS: Record<string, Translation> = {
   en: {
     eyebrow: 'Scan to join the network',
+    passwordLabel: 'Password',
     openNetwork: 'Open network – no password needed',
   },
   fr: {
     eyebrow: 'Scannez pour rejoindre le réseau',
+    passwordLabel: 'Mot de passe',
     openNetwork: 'Réseau ouvert – aucun mot de passe requis',
   },
   de: {
     eyebrow: 'Scannen, um dem Netzwerk beizutreten',
+    passwordLabel: 'Passwort',
     openNetwork: 'Offenes Netzwerk – kein Passwort erforderlich',
   },
   es: {
     eyebrow: 'Escanea para unirte a la red',
+    passwordLabel: 'Contraseña',
     openNetwork: 'Red abierta – no se necesita contraseña',
   },
   pt: {
     eyebrow: 'Escaneie para entrar na rede',
+    passwordLabel: 'Senha',
     openNetwork: 'Rede aberta – nenhuma senha necessária',
   },
 }
@@ -91,12 +97,15 @@ async function renderQRCode(payload: string): Promise<void> {
   })
 }
 
-// Password is never rendered as text — the QR code is the only way to join a
-// secured network, so the credential can't be read off the screen by anyone
-// who doesn't have their phone camera ready.
+// Password is hidden from the UI by default — the QR code is enough to join
+// a secured network, so leaving `wifi_show_password` off means the
+// credential can't be read off the screen by anyone without their phone
+// camera ready. Operators can opt in via that setting if guests should also
+// be able to type the password in by hand.
 function renderCredentials(
   { ssid, password, security }: WifiCredentials,
   translation: Translation,
+  showPassword: boolean,
 ) {
   document.getElementById('ssid')!.textContent = ssid
   document.getElementById('eyebrow')!.textContent = translation.eyebrow
@@ -105,6 +114,15 @@ function renderCredentials(
 
   const isOpen = security === 'nopass' || !password
   document.getElementById('open-badge')!.hidden = !isOpen
+
+  const passwordRow = document.getElementById('password-row')!
+  const shouldShowPassword = showPassword && !isOpen
+  passwordRow.hidden = !shouldShowPassword
+  if (shouldShowPassword) {
+    document.getElementById('password-label')!.textContent =
+      translation.passwordLabel
+    document.getElementById('password')!.textContent = password
+  }
 }
 
 async function render(): Promise<void> {
@@ -119,9 +137,11 @@ async function render(): Promise<void> {
   }
   const locale = getSettingWithDefault<string>('locale', 'en')
   const translation = resolveTranslation(locale)
+  const showPassword =
+    getSettingWithDefault<string>('wifi_show_password', 'false') === 'true'
 
   document.documentElement.lang = locale.trim().split(/[-_]/)[0] || 'en'
-  renderCredentials(credentials, translation)
+  renderCredentials(credentials, translation, showPassword)
   await renderQRCode(buildWifiPayload(credentials))
 
   signalReady()

@@ -15,10 +15,10 @@
     box-sizing: border-box;
   }
 
-  /* `.status-badge` below sets `display: flex`, which has the same
-     specificity as the UA stylesheet's `[hidden] { display: none }` and
+  /* `.password-row`/`.status-badge` below set `display: flex`, which has the
+     same specificity as the UA stylesheet's `[hidden] { display: none }` and
      would otherwise win by being declared later. Restate it explicitly so
-     toggling the `hidden` property from main.ts actually hides it. */
+     toggling the `hidden` property from main.ts actually hides them. */
   [hidden] {
     display: none !important;
   }
@@ -164,6 +164,32 @@
     color: var(--ink);
     word-break: break-word;
     overflow-wrap: anywhere;
+  }
+
+  .password-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: clamp(0.5rem, 2cqw, 1.2rem);
+    margin-top: clamp(0.4rem, 2cqh, 1rem);
+  }
+
+  .password-label {
+    font-size: clamp(1rem, 3.2cqh, 3.6rem);
+    font-weight: 600;
+    color: var(--ink-dim);
+  }
+
+  .password {
+    font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+    font-size: clamp(1.6rem, 6.5cqh, 7rem);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--ink);
+    padding: 0.15em 0.55em;
+    border-radius: 0.6em;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .status-badge {

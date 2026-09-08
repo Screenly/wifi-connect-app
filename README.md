@@ -2,7 +2,7 @@
 
 Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.
 
-Guests scan the on-screen QR code with their phone camera to join the network automatically. The network name is shown as text for identification, but the password itself is never displayed — scanning the QR is the only way to connect, so it can't be read off the screen (or a photo of it) by anyone without their own phone in hand.
+Guests scan the on-screen QR code with their phone camera to join the network automatically. The network name is shown as text for identification, but the password itself is hidden by default — scanning the QR is the only way to connect, so it can't be read off the screen (or a photo of it) by anyone without their own phone in hand. Turn on `wifi_show_password` if guests should also be able to type the password in by hand.
 
 ## Getting Started
 
@@ -46,13 +46,14 @@ bun run deploy
 
 Advanced settings:
 
-| Setting       | Description                                                                           | Required | Default |
-| ------------- | ------------------------------------------------------------------------------------- | -------- | ------- |
-| `wifi_hidden` | Set to `true` if the network doesn't broadcast its SSID                               | No       | `false` |
-| `sentry_dsn`  | Sentry Client Key for error capturing                                                 | No       | —       |
-| `locale`      | Language for the on-screen text (`en`, `fr`, `de`, `es`, `pt`; falls back to English) | No       | `en`    |
+| Setting              | Description                                                                           | Required | Default |
+| -------------------- | ------------------------------------------------------------------------------------- | -------- | ------- |
+| `wifi_hidden`        | Set to `true` if the network doesn't broadcast its SSID                               | No       | `false` |
+| `wifi_show_password` | Also display the password as text on screen, for typing in by hand                    | No       | `false` |
+| `sentry_dsn`         | Sentry Client Key for error capturing                                                 | No       | —       |
+| `locale`             | Language for the on-screen text (`en`, `fr`, `de`, `es`, `pt`; falls back to English) | No       | `en`    |
 
-The password is only ever embedded in the QR code, never rendered as text. When `wifi_security` is `nopass`, or `wifi_password` is left blank, the app renders an open-network QR code and shows an "Open network" badge instead.
+By default the password is only ever embedded in the QR code, never rendered as text — set `wifi_show_password` to `true` to also show it. When `wifi_security` is `nopass`, or `wifi_password` is left blank, the app always renders an open-network QR code and shows an "Open network" badge instead, regardless of `wifi_show_password` (there's no password to show).
 
 ## Testing
 
@@ -66,7 +67,7 @@ bun run test
 bun run screenshots
 ```
 
-This generates WebP screenshots for all 10 supported Screenly resolutions into the `screenshots/` directory, using [`@screenly/edge-apps/test/screenshots`](https://github.com/Screenly/edge-apps-library#screenshot-testing) to mock `screenly.js` and Playwright to capture each one.
+This generates WebP screenshots for all 10 supported Screenly resolutions into the `screenshots/` directory, using [`@screenly/edge-apps/test/screenshots`](https://github.com/Screenly/edge-apps-library#screenshot-testing) to mock `screenly.js` and Playwright to capture each one — once with `wifi_show_password` off (`qr-wifi-app-*.webp`) and once with it on (`qr-wifi-app-with-password-*.webp`), so both states stay visually reviewable.
 
 ## CI/CD
 

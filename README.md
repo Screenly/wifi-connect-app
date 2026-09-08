@@ -1,5 +1,7 @@
 # Wi-Fi QR Share
 
+![1080p Screenshot](/screenshots/qr-wifi-app-1920x1080.webp)
+
 Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.
 
 Guests scan the on-screen QR code with their phone camera to join the network automatically. The network name is shown as text for identification, but the password itself is hidden by default — scanning the QR is the only way to connect, so it can't be read off the screen (or a photo of it) by anyone without their own phone in hand. Turn on `wifi_show_password` if guests should also be able to type the password in by hand.

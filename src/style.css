@@ -1,0 +1,266 @@
+@layer theme, base, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import '@screenly/edge-apps/styles' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+@layer base {
+  :root {
+    --accent: var(--theme-color-primary, #7c3aed);
+    --ink: #f5f3ff;
+    --ink-dim: rgba(245, 243, 255, 0.62);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* `.password-row`/`.status-badge` below set `display: flex`, which has the
+     same specificity as the UA stylesheet's `[hidden] { display: none }` and
+     would otherwise win by being declared later. Restate it explicitly so
+     toggling the `hidden` property from main.ts actually hides them. */
+  [hidden] {
+    display: none !important;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #0b0a17;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      sans-serif;
+  }
+
+  #app {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    padding: 3vh 3vw;
+    background: radial-gradient(
+      ellipse 140% 100% at 50% -10%,
+      color-mix(in srgb, var(--accent) 28%, #150f2e) 0%,
+      #0b0a17 55%
+    );
+  }
+
+  /* Soft ambient glows for depth; purely decorative. */
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(min(12vw, 160px));
+    opacity: 0.55;
+  }
+
+  .glow--one {
+    width: 42vw;
+    height: 42vw;
+    top: -14vw;
+    left: -10vw;
+    background: color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+
+  .glow--two {
+    width: 34vw;
+    height: 34vw;
+    bottom: -12vw;
+    right: -8vw;
+    background: color-mix(in srgb, var(--accent) 40%, #14b8a6);
+  }
+
+  /* Main card */
+  .card {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: min(94vw, 1760px);
+    height: min(90vh, 980px);
+    background: linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.07),
+      rgba(255, 255, 255, 0.02)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: clamp(28px, 2.4vw, 56px);
+    box-shadow:
+      0 40px 120px -30px rgba(0, 0, 0, 0.65),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: clamp(2.5rem, 4vw, 5rem);
+  }
+
+  .panel--info {
+    flex: 1.05 1 0;
+    color: var(--ink);
+    gap: clamp(0.9rem, 1.6vh, 1.6rem);
+    min-width: 0;
+  }
+
+  .icon-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(3.4rem, 4.4vw, 5rem);
+    height: clamp(3.4rem, 4.4vw, 5rem);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 24%, transparent);
+    color: var(--accent);
+    margin-bottom: clamp(0.5rem, 1vh, 1rem);
+  }
+
+  .icon-badge svg {
+    width: 55%;
+    height: 55%;
+  }
+
+  .eyebrow {
+    margin: 0;
+    font-size: clamp(1.1rem, 1.6vw, 1.7rem);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink-dim);
+  }
+
+  .ssid {
+    margin: 0;
+    max-width: 100%;
+    font-size: clamp(2.6rem, 6.2vw, 6.4rem);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .password-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: clamp(0.5rem, 1vw, 1rem);
+    margin-top: clamp(0.4rem, 1vh, 0.8rem);
+  }
+
+  .password-label {
+    font-size: clamp(1rem, 1.4vw, 1.4rem);
+    font-weight: 600;
+    color: var(--ink-dim);
+  }
+
+  .password {
+    font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+    font-size: clamp(1.6rem, 3vw, 3rem);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--ink);
+    padding: 0.15em 0.55em;
+    border-radius: 0.6em;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: clamp(0.4rem, 1vh, 0.8rem);
+    padding: 0.5em 1em;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink-dim);
+    font-size: clamp(1rem, 1.3vw, 1.35rem);
+    font-weight: 600;
+  }
+
+  .status-badge svg {
+    width: 1.3em;
+    height: 1.3em;
+    flex-shrink: 0;
+  }
+
+  .panel--qr {
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .qr-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: min(100%, 60vh);
+    aspect-ratio: 1 / 1;
+    padding: clamp(1.4rem, 2.6vw, 2.6rem);
+    background: #ffffff;
+    border-radius: clamp(20px, 2vw, 36px);
+    box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.55);
+  }
+
+  .qr-code {
+    width: 100%;
+    height: 100%;
+  }
+
+  .qr-code svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Stack vertically on portrait displays so nothing gets cramped. */
+  @media (orientation: portrait) {
+    .card {
+      flex-direction: column;
+      width: min(94vw, 900px);
+      height: min(92vh, 1500px);
+    }
+
+    .panel--info {
+      align-items: center;
+      text-align: center;
+      order: 2;
+      flex: 1 1 auto;
+    }
+
+    .panel--qr {
+      order: 1;
+      border-left: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex: 1.1 1 auto;
+    }
+
+    .qr-frame {
+      width: min(80vw, 62vh);
+    }
+
+    .password-row {
+      justify-content: center;
+    }
+  }
+}

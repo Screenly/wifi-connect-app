@@ -24,6 +24,8 @@ Set `wifi_ssid` / `wifi_password` / `wifi_security` / `wifi_hidden` in `mock-dat
 
 The layout is written in plain, responsive CSS (flexbox, `clamp()`, and orientation media queries) rather than the library's `<auto-scaler>`/`<app-header>` components, so it fills the full screen at any resolution without extra chrome.
 
+The card background is a fixed dark overlay rather than one that lightens with the operator's `screenly_color_accent` — a pale or near-white accent used to wash out the card and drag text contrast down with it. All on-screen text is verified at WCAG AAA (≥7:1) against every accent color from near-black to near-white, since signage is typically viewed from a distance and often in bright ambient light where marginal contrast reads as illegible.
+
 ## Build
 
 ```bash

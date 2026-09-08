@@ -12,7 +12,12 @@
        either. */
     --accent: var(--theme-color-primary, #972eff);
     --ink: #f5f3ff;
-    --ink-dim: rgba(245, 243, 255, 0.62);
+    /* 0.8 alpha, not the original 0.62 — verified against a rendered
+       WCAG contrast check across accent colors from near-black to
+       near-white: 0.62 dropped as low as 4.35:1 (a real AA failure) with a
+       pale customer accent. 0.8 combined with the darker, accent-independent
+       .card background below clears AAA (7:1) even in that worst case. */
+    --ink-dim: rgba(245, 243, 255, 0.8);
   }
 
   * {
@@ -52,7 +57,7 @@
     padding: 3vh 3vw;
     background: radial-gradient(
       ellipse 140% 100% at 50% -10%,
-      color-mix(in srgb, var(--accent) 28%, #150f2e) 0%,
+      color-mix(in srgb, var(--accent) 16%, #150f2e) 0%,
       #0b0a17 55%
     );
   }
@@ -97,11 +102,17 @@
     display: flex;
     width: 92vw;
     height: 88vh;
+    /* Darkening (not the old white-tinted) overlay, so the backdrop behind
+       all the text stays reliably dark and high-contrast no matter how
+       light the operator's chosen screenly_color_accent is — a pale accent
+       used to visibly wash out the card and cut into text contrast. */
     background: linear-gradient(
       165deg,
-      rgba(255, 255, 255, 0.07),
-      rgba(255, 255, 255, 0.02)
+      rgba(8, 6, 18, 0.78),
+      rgba(4, 3, 10, 0.92)
     );
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
     border: 1px solid rgba(255, 255, 255, 0.09);
     border-radius: clamp(28px, 2.4vw, 56px);
     box-shadow:

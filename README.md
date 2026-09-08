@@ -9,13 +9,13 @@ Guests scan the on-screen QR code with their phone camera to join the network au
 Install dependencies:
 
 ```bash
-npm install
+bun install
 ```
 
 ## Development
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Set `wifi_ssid` / `wifi_password` / `wifi_security` / `wifi_hidden` in `mock-data.yml` (or `screenly.yml`'s `default_value`s) to preview real-looking data locally.
@@ -25,15 +25,15 @@ The layout is written in plain, responsive CSS (flexbox, `clamp()`, and orientat
 ## Build
 
 ```bash
-npm run build
+bun run build
 ```
 
 ## Deployment
 
+Deployment is handled by CI (see below), not run by hand. `bun run deploy` remains available for local one-off pushes:
+
 ```bash
-screenly edge-app create --name qr-wifi-app --in-place
-npm run deploy
-screenly edge-app instance create
+bun run deploy
 ```
 
 ## Configuration
@@ -49,13 +49,31 @@ Advanced settings:
 | Setting       | Description                                                                           | Required | Default |
 | ------------- | ------------------------------------------------------------------------------------- | -------- | ------- |
 | `wifi_hidden` | Set to `true` if the network doesn't broadcast its SSID                               | No       | `false` |
-| `locale`      | Language for the on-screen text (`en`, `fr`, `de`, `es`, `pt`; falls back to English) | No       | `en`    |
 | `sentry_dsn`  | Sentry Client Key for error capturing                                                 | No       | —       |
+| `locale`      | Language for the on-screen text (`en`, `fr`, `de`, `es`, `pt`; falls back to English) | No       | `en`    |
 
 When `wifi_security` is `nopass`, or `wifi_password` is left blank, the app renders an open-network QR code and swaps the password display for an "Open network" badge instead.
+
+## Testing
+
+```bash
+bun run test
+```
 
 ## Screenshots
 
 ```bash
-npm run screenshots
+bun run screenshots
 ```
+
+This generates WebP screenshots for all 10 supported Screenly resolutions into the `screenshots/` directory, using [`@screenly/edge-apps/test/screenshots`](https://github.com/Screenly/edge-apps-library#screenshot-testing) to mock `screenly.js` and Playwright to capture each one.
+
+## CI/CD
+
+This repo follows the same [`Screenly/edge-apps-actions`](https://github.com/Screenly/edge-apps-actions) workflow used across Screenly's Edge Apps:
+
+- **[Checks](.github/workflows/checks.yml)** — runs on every push/PR to `development` and `main`: format check, lint, build, test.
+- **[Update Edge App](.github/workflows/update-edge-app.yml)** — deploys to **stage** on push to `development` (or manual dispatch), and to **production** on push to `main`.
+- **[Initialize Edge App](.github/workflows/initialize-edge-app.yml)** — one-off, manually triggered (`workflow_dispatch`) to register a brand-new Edge App + instance in `stage` or `production`.
+
+Before these can actually deploy, each environment needs to be set up once in the repo (Settings → Environments → `stage` / `production`), with a `SCREENLY_API_TOKEN` secret. Then run **Initialize Edge App** once per environment (this creates the Edge App and instance and writes the returned `id` into `screenly_qc.yml` for stage or `screenly.yml` for production — commit that `id` back so **Update Edge App** can find it on subsequent deploys).

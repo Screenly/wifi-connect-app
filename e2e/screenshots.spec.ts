@@ -12,6 +12,7 @@ const { screenlyJsContent } = createMockScreenlyForScreenshots(
     wifi_password: 'welcome2screenly',
     wifi_security: 'WPA',
     wifi_hidden: 'false',
+    locale: 'en',
   },
 )
 

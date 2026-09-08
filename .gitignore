@@ -3,3 +3,6 @@ dist/
 *.log
 .DS_Store
 mock-data.yml
+instance.yml
+coverage/
+.claude/

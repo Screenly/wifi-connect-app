@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wi-Fi QR Share - Screenly Edge App</title>
     <script src="screenly.js?version=1"></script>
+    <script>
+      // setupTheme() (called from src/main.ts) sets --theme-color-primary,
+      // but that script is deferred and runs after first paint, so the icon
+      // and glows would flash from the CSS fallback color to the real accent
+      // color once it runs. screenly.js above is a blocking classic script,
+      // so window.screenly is already populated here — apply the accent
+      // immediately, before anything paints, mirroring the same "ignore
+      // unset/white" rule @screenly/edge-apps' getPrimaryColor() uses.
+      ;(function () {
+        var accent =
+          window.screenly &&
+          window.screenly.settings &&
+          window.screenly.settings.screenly_color_accent
+        if (accent && accent.toLowerCase() !== '#ffffff') {
+          document.documentElement.style.setProperty(
+            '--theme-color-primary',
+            accent,
+          )
+        }
+      })()
+    </script>
   </head>
   <body>
     <main id="app">

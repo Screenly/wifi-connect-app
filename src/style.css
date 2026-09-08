@@ -6,7 +6,11 @@
 
 @layer base {
   :root {
-    --accent: var(--theme-color-primary, #7c3aed);
+    /* Matches @screenly/edge-apps' own DEFAULT_THEME_COLORS.primary, so the
+       no-custom-accent case needs no JS to look right — see the inline
+       script in index.html for why a *custom* accent doesn't flicker in
+       either. */
+    --accent: var(--theme-color-primary, #972eff);
     --ink: #f5f3ff;
     --ink-dim: rgba(245, 243, 255, 0.62);
   }

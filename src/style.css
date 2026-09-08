@@ -128,12 +128,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(3rem, 6cqh, 9rem);
-    height: clamp(3rem, 6cqh, 9rem);
+    width: clamp(3.2rem, 9cqh, 11rem);
+    height: clamp(3.2rem, 9cqh, 11rem);
     border-radius: 999px;
     background: color-mix(in srgb, var(--accent) 24%, transparent);
     color: var(--accent);
-    margin-bottom: clamp(0.5rem, 2cqh, 1.6rem);
+    margin-bottom: clamp(0.6rem, 2.5cqh, 2rem);
   }
 
   .icon-badge svg {

@@ -128,12 +128,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(3rem, 6cqh, 6.5rem);
-    height: clamp(3rem, 6cqh, 6.5rem);
+    width: clamp(3rem, 6cqh, 9rem);
+    height: clamp(3rem, 6cqh, 9rem);
     border-radius: 999px;
     background: color-mix(in srgb, var(--accent) 24%, transparent);
     color: var(--accent);
-    margin-bottom: clamp(0.5rem, 2cqh, 1.2rem);
+    margin-bottom: clamp(0.5rem, 2cqh, 1.6rem);
   }
 
   .icon-badge svg {
@@ -141,9 +141,14 @@
     height: 55%;
   }
 
+  /* The `cqh`/`cqw` preferred value is what actually tracks the panel's real
+     size; the rem ceiling below it is only a sanity cap for pathological
+     aspect ratios. Keep ceilings generous — a low one (tuned by eye against
+     1080p) silently reintroduces the "too small on 4K" bug by clipping the
+     preferred value everywhere the panel is bigger than 1080p-ish. */
   .eyebrow {
     margin: 0;
-    font-size: clamp(1.1rem, 4cqh, 2.4rem);
+    font-size: clamp(1.1rem, 4cqh, 4.5rem);
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--ink-dim);
@@ -152,7 +157,7 @@
   .ssid {
     margin: 0;
     max-width: 100%;
-    font-size: clamp(2.4rem, min(9cqw, 14cqh), 9.5rem);
+    font-size: clamp(2.4rem, min(9cqw, 14cqh), 13rem);
     line-height: 1.05;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -165,13 +170,13 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    margin-top: clamp(0.4rem, 2cqh, 1rem);
+    margin-top: clamp(0.4rem, 2cqh, 1.2rem);
     padding: 0.5em 1em;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--ink-dim);
-    font-size: clamp(1rem, 3cqh, 1.8rem);
+    font-size: clamp(1rem, 3cqh, 3.4rem);
     font-weight: 600;
   }
 
@@ -199,7 +204,7 @@
     justify-content: center;
     width: min(78cqw, 78cqh);
     aspect-ratio: 1 / 1;
-    padding: clamp(1.2rem, 6cqw, 2.6rem);
+    padding: clamp(1.2rem, 6cqw, 4.5rem);
     background: #ffffff;
     border-radius: clamp(20px, 2cqw, 36px);
     box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.55);

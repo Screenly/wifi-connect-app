@@ -6,3 +6,4 @@ mock-data.yml
 instance.yml
 coverage/
 .claude/
+package-lock.json

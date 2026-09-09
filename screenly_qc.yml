@@ -13,7 +13,7 @@ settings:
       properties:
         type: string
         advanced: true
-        display_order: 4
+        display_order: 5
         help_text: |
           Language for the on-screen text (e.g. en, fr, de, es, pt). Falls back to English if unsupported.
   sentry_dsn:
@@ -28,6 +28,17 @@ settings:
         advanced: true
         display_order: 3
         help_text: Sentry Client Key from Sentry SDK for error capturing.
+  wifi_header_message:
+    type: string
+    default_value: 'Welcome — Guest Wi-Fi'
+    title: Header Message
+    optional: true
+    help_text:
+      schema_version: 1
+      properties:
+        type: string
+        display_order: 2
+        help_text: The message shown in the pill at the top of the screen.
   wifi_hidden:
     type: string
     default_value: 'false'
@@ -48,7 +59,7 @@ settings:
       schema_version: 1
       properties:
         type: string
-        display_order: 2
+        display_order: 3
         help_text: |
           The Wi-Fi password. Leave blank for an open network that doesn't require one.
   wifi_security:
@@ -60,7 +71,7 @@ settings:
       schema_version: 1
       properties:
         type: select
-        display_order: 3
+        display_order: 4
         help_text: The encryption used by the network. Choose "Open" if it has no password.
         options:
           - label: WPA / WPA2 / WPA3

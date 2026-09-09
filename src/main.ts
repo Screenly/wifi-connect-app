@@ -16,35 +16,39 @@ function escapeWifiValue(value: string): string {
 }
 
 interface Translation {
-  eyebrow: string
-  passwordLabel: string
+  scanCaption: string
+  passwordHint: string
   openNetwork: string
 }
 
+// The header badge's own default text lives in screenly.yml's
+// wifi_header_message default_value (English only) rather than here — it's
+// an operator-editable setting, not UI chrome, so it doesn't belong in a
+// per-locale translation table.
 const TRANSLATIONS: Record<string, Translation> = {
   en: {
-    eyebrow: 'Scan to join the network',
-    passwordLabel: 'Password',
+    scanCaption: 'Scan to join',
+    passwordHint: 'Or type the password',
     openNetwork: 'Open network – no password needed',
   },
   fr: {
-    eyebrow: 'Scannez pour rejoindre le réseau',
-    passwordLabel: 'Mot de passe',
+    scanCaption: 'Scannez pour rejoindre',
+    passwordHint: 'Ou saisissez le mot de passe',
     openNetwork: 'Réseau ouvert – aucun mot de passe requis',
   },
   de: {
-    eyebrow: 'Scannen, um dem Netzwerk beizutreten',
-    passwordLabel: 'Passwort',
+    scanCaption: 'Scannen zum Beitreten',
+    passwordHint: 'Oder Passwort eingeben',
     openNetwork: 'Offenes Netzwerk – kein Passwort erforderlich',
   },
   es: {
-    eyebrow: 'Escanea para unirte a la red',
-    passwordLabel: 'Contraseña',
+    scanCaption: 'Escanea para unirte',
+    passwordHint: 'O escribe la contraseña',
     openNetwork: 'Red abierta – no se necesita contraseña',
   },
   pt: {
-    eyebrow: 'Escaneie para entrar na rede',
-    passwordLabel: 'Senha',
+    scanCaption: 'Escaneie para entrar',
+    passwordHint: 'Ou digite a senha',
     openNetwork: 'Rede aberta – nenhuma senha necessária',
   },
 }
@@ -91,7 +95,7 @@ async function renderQRCode(payload: string): Promise<void> {
     errorCorrectionLevel: 'Q',
     margin: 0,
     color: {
-      dark: '#0b0a17',
+      dark: '#08060f',
       light: '#ffffff',
     },
   })
@@ -106,9 +110,11 @@ function renderCredentials(
   { ssid, password, security }: WifiCredentials,
   translation: Translation,
   showPassword: boolean,
+  headerMessage: string,
 ) {
   document.getElementById('ssid')!.textContent = ssid
-  document.getElementById('eyebrow')!.textContent = translation.eyebrow
+  document.getElementById('badge-text')!.textContent = headerMessage
+  document.getElementById('qr-caption')!.textContent = translation.scanCaption
   document.getElementById('open-badge-text')!.textContent =
     translation.openNetwork
 
@@ -120,9 +126,30 @@ function renderCredentials(
   passwordRow.hidden = !shouldShowPassword
   if (shouldShowPassword) {
     document.getElementById('password-label')!.textContent =
-      translation.passwordLabel
+      translation.passwordHint
     document.getElementById('password')!.textContent = password
   }
+
+  // The divider only makes sense alongside a visible password. In the
+  // landscape row it also just falls away with the password block — the
+  // QR block is left alone and .card's align-items: center re-centers it.
+  document.getElementById('divider')!.hidden = !shouldShowPassword
+
+  // Portrait rebuilds the row into a grid (see the orientation: portrait
+  // block in style.css) with a fixed-height row reserved for the password
+  // block so the QR above it never moves between the shown/hidden states.
+  // Which state applies decides both the grid template and which element
+  // lands in which row, so it's driven from here rather than duplicated
+  // per-element hidden checks in CSS.
+  const card = document.querySelector('.card')!
+  card.classList.remove('state-open', 'state-password', 'state-no-password')
+  card.classList.add(
+    isOpen
+      ? 'state-open'
+      : shouldShowPassword
+        ? 'state-password'
+        : 'state-no-password',
+  )
 }
 
 async function render(): Promise<void> {
@@ -139,9 +166,13 @@ async function render(): Promise<void> {
   const translation = resolveTranslation(locale)
   const showPassword =
     getSettingWithDefault<string>('wifi_show_password', 'false') === 'true'
+  const headerMessage = getSettingWithDefault<string>(
+    'wifi_header_message',
+    'Welcome — Guest Wi-Fi',
+  )
 
   document.documentElement.lang = locale.trim().split(/[-_]/)[0] || 'en'
-  renderCredentials(credentials, translation, showPassword)
+  renderCredentials(credentials, translation, showPassword, headerMessage)
   await renderQRCode(buildWifiPayload(credentials))
 
   signalReady()

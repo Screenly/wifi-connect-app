@@ -11,21 +11,23 @@
        script in index.html for why a *custom* accent doesn't flicker in
        either. */
     --accent: var(--theme-color-primary, #972eff);
-    --ink: #f5f3ff;
-    /* 0.8 alpha, not the original 0.62 — verified against a rendered
-       WCAG contrast check across accent colors from near-black to
-       near-white: 0.62 dropped as low as 4.35:1 (a real AA failure) with a
-       pale customer accent. 0.8 combined with the darker, accent-independent
-       .card background below clears AAA (7:1) even in that worst case. */
-    --ink-dim: rgba(245, 243, 255, 0.8);
+    /* Darkened before it hits the background glow — a pale operator accent
+       used to wash out straight at full strength and hurt legibility, so we
+       mix it toward the near-black base instead of using it raw. */
+    --accent-glow: color-mix(in srgb, var(--accent) 55%, #08060f);
+    /* Lightened tints for small accent-colored text/iconography, which read
+       poorly in the raw accent against this dark a background. */
+    --accent-tint: color-mix(in srgb, var(--accent) 30%, white);
+    --accent-tint-2: color-mix(in srgb, var(--accent) 50%, white);
+    --ink: #ffffff;
   }
 
   * {
     box-sizing: border-box;
   }
 
-  /* `.password-row`/`.status-badge` below set `display: flex`, which has the
-     same specificity as the UA stylesheet's `[hidden] { display: none }` and
+  /* Several elements below set `display: flex`, which has the same
+     specificity as the UA stylesheet's `[hidden] { display: none }` and
      would otherwise win by being declared later. Restate it explicitly so
      toggling the `hidden` property from main.ts actually hides them. */
   [hidden] {
@@ -38,7 +40,7 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: #0b0a17;
+    background: #08060f;
     font-family:
       'Inter',
       system-ui,
@@ -48,176 +50,81 @@
   }
 
   #app {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100vw;
     height: 100vh;
-    padding: 3vh 3vw;
-    background: radial-gradient(
-      ellipse 140% 100% at 50% -10%,
-      color-mix(in srgb, var(--accent) 16%, #150f2e) 0%,
-      #0b0a17 55%
-    );
   }
 
-  /* Soft ambient glows for depth; purely decorative. */
-  .backdrop {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .glow {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(min(12vw, 160px));
-    opacity: 0.55;
-  }
-
-  .glow--one {
-    width: 42vw;
-    height: 42vw;
-    top: -14vw;
-    left: -10vw;
-    background: color-mix(in srgb, var(--accent) 70%, transparent);
-  }
-
-  .glow--two {
-    width: 34vw;
-    height: 34vw;
-    bottom: -12vw;
-    right: -8vw;
-    background: color-mix(in srgb, var(--accent) 40%, #14b8a6);
-  }
-
-  /* Main card. Sized as a share of the viewport with no fixed pixel ceiling
-     — Screenly displays range from small signage strips to 4K+ totems, and
-     a px cap tuned for one leaves the card floating tiny on the other. */
+  /* The card *is* the screen — a full-bleed surface, not a floating inset
+     panel. Sized as a share of the viewport with no fixed pixel ceiling —
+     Screenly displays range from small signage strips to 4K+ totems, and a
+     px cap tuned for one leaves content floating tiny on the other. */
   .card {
     position: relative;
-    z-index: 1;
     display: flex;
-    width: 92vw;
-    height: 88vh;
-    /* Darkening (not the old white-tinted) overlay, so the backdrop behind
-       all the text stays reliably dark and high-contrast no matter how
-       light the operator's chosen screenly_color_accent is — a pale accent
-       used to visibly wash out the card and cut into text contrast. */
-    background: linear-gradient(
-      165deg,
-      rgba(8, 6, 18, 0.78),
-      rgba(4, 3, 10, 0.92)
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 5cqh, 3.5rem);
+    width: 100%;
+    height: 100%;
+    padding: clamp(1.5rem, 7.4cqh, 5rem) clamp(1.5rem, 6.25cqw, 5rem);
+    background-color: #08060f;
+    background-image: radial-gradient(
+      75% 95% at 50% -10%,
+      var(--accent-glow) 0%,
+      transparent 68%
     );
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: clamp(28px, 2.4vw, 56px);
-    box-shadow:
-      0 40px 120px -30px rgba(0, 0, 0, 0.65),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    /* Lets every cqw/cqh value below scale off the card's own box, so type
+       and spacing track the card's actual real estate. */
+    container-type: size;
+    color: var(--ink);
     overflow: hidden;
   }
 
-  .panel {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    padding: clamp(2rem, 4cqw, 5rem);
-  }
-
-  .panel--info {
-    flex: 1.05 1 0;
-    color: var(--ink);
-    gap: clamp(0.8rem, 2cqh, 1.6rem);
-    min-width: 0;
-    /* Lets .eyebrow/.ssid scale off this panel's own box (cqw/cqh) instead
-       of the raw viewport, so text tracks the card's actual real estate. */
-    container-type: size;
-  }
-
-  .icon-badge {
+  .badge {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: clamp(3.2rem, 9cqh, 11rem);
-    height: clamp(3.2rem, 9cqh, 11rem);
+    gap: 0.6em;
+    padding: clamp(0.6rem, 1.48cqh, 1.6rem) clamp(1rem, 2.08cqw, 2.4rem);
     border-radius: 999px;
-    background: color-mix(in srgb, var(--accent) 24%, transparent);
-    color: var(--accent);
-    margin-bottom: clamp(0.6rem, 2.5cqh, 2rem);
+    border: 2px solid color-mix(in srgb, var(--accent-tint-2) 50%, transparent);
+    color: var(--accent-tint);
+    font-size: clamp(0.85rem, 3.15cqh, 2.4rem);
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
 
-  .icon-badge svg {
-    width: 55%;
-    height: 55%;
-  }
-
-  /* The `cqh`/`cqw` preferred value is what actually tracks the panel's real
-     size; the rem ceiling below it is only a sanity cap for pathological
-     aspect ratios. Keep ceilings generous — a low one (tuned by eye against
-     1080p) silently reintroduces the "too small on 4K" bug by clipping the
-     preferred value everywhere the panel is bigger than 1080p-ish. */
-  .eyebrow {
-    margin: 0;
-    font-size: clamp(1.1rem, 4cqh, 4.5rem);
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    color: var(--ink-dim);
+  .badge-icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
   }
 
   .ssid {
     margin: 0;
     max-width: 100%;
-    font-size: clamp(2.4rem, min(9cqw, 14cqh), 13rem);
-    line-height: 1.05;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+    font-size: clamp(2.4rem, min(15.9cqh, 9cqw), 13rem);
+    line-height: 0.95;
+    font-weight: 700;
+    letter-spacing: -0.03em;
     color: var(--ink);
+    text-align: center;
     word-break: break-word;
     overflow-wrap: anywhere;
-  }
-
-  .password-row {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: clamp(0.5rem, 2cqw, 1.2rem);
-    margin-top: clamp(0.4rem, 2cqh, 1rem);
-  }
-
-  .password-label {
-    font-size: clamp(1rem, 3.2cqh, 3.6rem);
-    font-weight: 600;
-    color: var(--ink-dim);
-  }
-
-  .password {
-    font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
-    font-size: clamp(1.6rem, 6.5cqh, 7rem);
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    color: var(--ink);
-    padding: 0.15em 0.55em;
-    border-radius: 0.6em;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .status-badge {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    margin-top: clamp(0.4rem, 2cqh, 1.2rem);
     padding: 0.5em 1em;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    color: var(--ink-dim);
-    font-size: clamp(1rem, 3cqh, 3.4rem);
+    color: var(--ink);
+    font-size: clamp(1rem, 2.6cqh, 2.6rem);
     font-weight: 600;
   }
 
@@ -227,28 +134,35 @@
     flex-shrink: 0;
   }
 
-  .panel--qr {
-    flex: 1 1 0;
+  /* Row pairing the QR code with the typed-password fallback. When the
+     password block (and its divider) are hidden, this row shrinks to just
+     the QR block, and .card's align-items: center re-centers that narrower
+     box on its own — no extra centering logic needed, and nothing else on
+     the card moves or resizes. */
+  .content-row {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.03);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    /* Lets .qr-frame size itself off whichever of this panel's own
-       dimensions is tighter (cqw/cqh), so the QR fills a consistent share
-       of its panel on any resolution or aspect ratio, landscape or portrait. */
-    container-type: size;
+    gap: clamp(1rem, 4cqw, 4.5rem);
+  }
+
+  .qr-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.5rem, 2cqh, 1.4rem);
   }
 
   .qr-frame {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: min(78cqw, 78cqh);
+    width: min(20.2cqw, 35.9cqh);
     aspect-ratio: 1 / 1;
-    padding: clamp(1.2rem, 6cqw, 4.5rem);
+    padding: clamp(0.8rem, 3.15cqh, 2.4rem);
     background: #ffffff;
-    border-radius: clamp(20px, 2cqw, 36px);
-    box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.55);
+    border-radius: clamp(16px, 2.96cqh, 32px);
+    box-shadow: 0 30px 70px -10px
+      color-mix(in srgb, var(--accent-glow) 65%, transparent);
   }
 
   .qr-code {
@@ -262,26 +176,155 @@
     height: 100%;
   }
 
-  /* Stack vertically on portrait displays so nothing gets cramped. */
+  .qr-caption {
+    margin: 0;
+    font-size: clamp(0.85rem, 3.15cqh, 2.4rem);
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .divider {
+    align-self: stretch;
+    width: clamp(1px, 0.15cqw, 3px);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .password-block {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.4rem, 2cqh, 1.4rem);
+    min-width: 0;
+  }
+
+  .password-label {
+    font-size: clamp(0.85rem, 3.15cqh, 2.4rem);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-tint-2);
+  }
+
+  .password {
+    font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+    font-size: clamp(1.5rem, 8.9cqh, 6rem);
+    font-weight: 700;
+    color: var(--ink);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* Portrait rebuilds the layout as a grid instead of the landscape row.
+     `.content-row` steps out of the way via `display: contents` so its
+     children (the QR block, divider, password block) become direct grid
+     items, positioned by the explicit `grid-row`s below. The password
+     block's row is a fixed height reserved whether or not it has content
+     — swapped per state so the reserved row only appears where the QR
+     needs to sit still (5a/5b), not where there's nothing to keep steady
+     against (the open-network state). */
   @media (orientation: portrait) {
     .card {
-      flex-direction: column;
-      width: 92vw;
-      height: 92vh;
+      display: grid;
+      grid-template-columns: 100%;
+      justify-items: center;
+      align-content: center;
+      row-gap: clamp(0.8rem, 3.65cqh, 2.4rem);
+      padding: clamp(1.2rem, 5.2cqh, 4rem) clamp(1.2rem, 7.4cqw, 4rem);
+      background-image: radial-gradient(
+        85% 60% at 50% -5%,
+        var(--accent-glow) 0%,
+        transparent 70%
+      );
     }
 
-    .panel--info {
-      align-items: center;
+    /* password shown/hidden: badge, title, QR, password(fixed) — row 4
+       stays reserved even with the password block hidden, so the QR
+       (row 3) never moves between the two states. */
+    .card.state-password,
+    .card.state-no-password {
+      grid-template-rows: auto auto auto clamp(4rem, 9.06cqh, 10rem);
+    }
+
+    /* open network: badge, title, open-network pill, QR — no fixed
+       reservation, since there's no password row to stay steady against. */
+    .card.state-open {
+      grid-template-rows: auto auto auto auto;
+    }
+
+    .badge {
+      grid-row: 1;
+      max-width: 85cqw;
+      font-size: clamp(0.75rem, 1.77cqh, 1.8rem);
+      padding: clamp(0.5rem, 0.94cqh, 1.2rem) clamp(0.9rem, 3.7cqw, 2.2rem);
+      /* The header message is operator-editable free text, so it can run
+         longer than the pill is wide — wrap instead of overflowing. */
+      white-space: normal;
       text-align: center;
-      order: 2;
-      flex: 1 1 0;
     }
 
-    .panel--qr {
-      order: 1;
-      border-left: none;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      flex: 1.1 1 0;
+    .badge-icon {
+      display: none;
+    }
+
+    .ssid {
+      grid-row: 2;
+      font-size: clamp(2rem, min(7.8cqh, 11cqw), 8rem);
+    }
+
+    .status-badge {
+      grid-row: 3;
+    }
+
+    .content-row {
+      display: contents;
+    }
+
+    .state-password .qr-block,
+    .state-no-password .qr-block {
+      grid-row: 3;
+    }
+
+    .state-open .qr-block {
+      grid-row: 4;
+    }
+
+    /* The landscape sizing above is calibrated against a 1920-wide,
+       1080-tall reference, so it renders far too small once the card is
+       taller than it is wide — recalibrated here against the portrait
+       design's own 1080x1920 reference. */
+    .qr-block {
+      gap: clamp(0.4rem, 1.15cqh, 1rem);
+    }
+
+    .qr-frame {
+      width: min(56.3cqw, 31.67cqh);
+      padding: clamp(0.7rem, 2.29cqh, 2rem);
+      border-radius: clamp(14px, 2.08cqh, 28px);
+    }
+
+    .qr-caption {
+      font-size: clamp(0.75rem, 1.77cqh, 1.8rem);
+    }
+
+    .divider {
+      display: none;
+    }
+
+    .state-password .password-block,
+    .state-no-password .password-block {
+      grid-row: 4;
+    }
+
+    .password-block {
+      align-items: center;
+      gap: clamp(0.3rem, 1.04cqh, 0.9rem);
+    }
+
+    .password-label {
+      font-size: clamp(0.75rem, 1.77cqh, 1.8rem);
+    }
+
+    .password {
+      font-size: clamp(1.3rem, 4.375cqh, 4rem);
     }
   }
 }

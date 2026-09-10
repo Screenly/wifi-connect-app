@@ -1,4 +1,3 @@
-import './style.css'
 import QRCode from 'qrcode'
 import {
   getSettingWithDefault,

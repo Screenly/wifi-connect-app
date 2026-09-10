@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wi-Fi QR Share - Screenly Edge App</title>
+    <!-- Linked here (not just `import`-ed from main.ts) so it loads as a
+         blocking stylesheet before first paint. main.ts's script tag is a
+         deferred module, so without this the browser paints the raw,
+         unstyled HTML first — most visibly, the badge's SVG icon has no
+         width/height attributes and no CSS yet to size it, so it flashes
+         at the browser's default replaced-element size (~300px) on a
+         plain white body background for a frame or two on every load. -->
+    <link rel="stylesheet" href="/src/style.css" />
     <script src="screenly.js?version=1"></script>
     <script>
       // setupTheme() (called from src/main.ts) sets --theme-color-primary,

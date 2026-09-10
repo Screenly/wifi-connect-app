@@ -89,7 +89,13 @@
     border-radius: 999px;
     border: 2px solid color-mix(in srgb, var(--accent-tint-2) 50%, transparent);
     color: var(--accent-tint);
-    font-size: clamp(0.85rem, 3.15cqh, 2.4rem);
+    /* The cqh-driven preferred value is what actually tracks the card's
+       real size; the rem ceiling is only a sanity cap for pathological
+       aspect ratios. Keep ceilings generous — a low one (tuned by eye
+       against 1080p) silently caps every element well before true 4K
+       (3840/4096-tall-or-wide) displays reach it, so text stops growing
+       past 1080p-ish even though the product explicitly targets 4K+. */
+    font-size: clamp(0.85rem, 3.15cqh, 5rem);
     font-weight: 700;
     letter-spacing: 0.24em;
     text-transform: uppercase;
@@ -105,7 +111,7 @@
   .ssid {
     margin: 0;
     max-width: 100%;
-    font-size: clamp(2.4rem, min(15.9cqh, 9cqw), 13rem);
+    font-size: clamp(2.4rem, min(15.9cqh, 9cqw), 22rem);
     line-height: 0.95;
     font-weight: 700;
     letter-spacing: -0.03em;
@@ -124,7 +130,7 @@
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--ink);
-    font-size: clamp(1rem, 2.6cqh, 2.6rem);
+    font-size: clamp(1rem, 2.6cqh, 4.5rem);
     font-weight: 600;
   }
 
@@ -178,7 +184,7 @@
 
   .qr-caption {
     margin: 0;
-    font-size: clamp(0.85rem, 3.15cqh, 2.4rem);
+    font-size: clamp(0.85rem, 3.15cqh, 5rem);
     font-weight: 700;
     color: var(--ink);
   }
@@ -197,7 +203,7 @@
   }
 
   .password-label {
-    font-size: clamp(0.85rem, 3.15cqh, 2.4rem);
+    font-size: clamp(0.85rem, 3.15cqh, 5rem);
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -206,7 +212,7 @@
 
   .password {
     font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
-    font-size: clamp(1.5rem, 8.9cqh, 6rem);
+    font-size: clamp(1.5rem, 8.9cqh, 13rem);
     font-weight: 700;
     color: var(--ink);
     word-break: break-word;
@@ -241,7 +247,7 @@
        (row 3) never moves between the two states. */
     .card.state-password,
     .card.state-no-password {
-      grid-template-rows: auto auto auto clamp(4rem, 9.06cqh, 10rem);
+      grid-template-rows: auto auto auto clamp(4rem, 9.06cqh, 24rem);
     }
 
     /* open network: badge, title, open-network pill, QR — no fixed
@@ -253,7 +259,7 @@
     .badge {
       grid-row: 1;
       max-width: 85cqw;
-      font-size: clamp(0.75rem, 1.77cqh, 1.8rem);
+      font-size: clamp(0.75rem, 1.77cqh, 5rem);
       padding: clamp(0.5rem, 0.94cqh, 1.2rem) clamp(0.9rem, 3.7cqw, 2.2rem);
       /* The header message is operator-editable free text, so it can run
          longer than the pill is wide — wrap instead of overflowing. */
@@ -267,7 +273,7 @@
 
     .ssid {
       grid-row: 2;
-      font-size: clamp(2rem, min(7.8cqh, 11cqw), 8rem);
+      font-size: clamp(2rem, min(7.8cqh, 11cqw), 15rem);
     }
 
     .status-badge {
@@ -302,7 +308,7 @@
     }
 
     .qr-caption {
-      font-size: clamp(0.75rem, 1.77cqh, 1.8rem);
+      font-size: clamp(0.75rem, 1.77cqh, 5rem);
     }
 
     .divider {
@@ -320,11 +326,11 @@
     }
 
     .password-label {
-      font-size: clamp(0.75rem, 1.77cqh, 1.8rem);
+      font-size: clamp(0.75rem, 1.77cqh, 5rem);
     }
 
     .password {
-      font-size: clamp(1.3rem, 4.375cqh, 4rem);
+      font-size: clamp(1.3rem, 4.375cqh, 12rem);
     }
   }
 }

@@ -30,7 +30,7 @@ settings:
         help_text: Sentry Client Key from Sentry SDK for error capturing.
   wifi_header_message:
     type: string
-    default_value: 'Wi-Fi'
+    default_value: 'Welcome — Guest Wi-Fi'
     title: Header Message
     optional: true
     help_text:

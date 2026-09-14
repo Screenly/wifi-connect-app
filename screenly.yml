@@ -61,7 +61,7 @@ settings:
           to be visible at all.
   wifi_header_message:
     type: string
-    default_value: 'Welcome — Guest Wi-Fi'
+    default_value: 'WiFi Details'
     title: Header Message
     optional: true
     help_text:
@@ -115,7 +115,7 @@ settings:
             value: nopass
   wifi_show_password:
     type: string
-    default_value: 'false'
+    default_value: 'true'
     title: Show Password as Text
     optional: true
     help_text:

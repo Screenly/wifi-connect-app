@@ -336,10 +336,7 @@ async function render(): Promise<void> {
   const showPassword =
     getSettingWithDefault<string>('wifi_show_password', 'false') === 'true'
   const headerMessage = truncateHeaderMessage(
-    getSettingWithDefault<string>(
-      'wifi_header_message',
-      'Welcome — Guest Wi-Fi',
-    ),
+    getSettingWithDefault<string>('wifi_header_message', 'WiFi Details'),
   )
   const { bg, text } = resolveColors(
     getSettingWithDefault<string>('bg_color', DEFAULT_BG_COLOR),

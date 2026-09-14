@@ -44,7 +44,7 @@ bun run deploy
 
 ## Configuration
 
-| Setting               | Description                                                                     | Required | Default        |
+| Setting               | Description                                                                      | Required | Default        |
 | --------------------- | -------------------------------------------------------------------------------- | -------- | -------------- |
 | `wifi_ssid`           | The Wi-Fi network name shown on screen and encoded in the QR code                | Yes      | —              |
 | `wifi_header_message` | Message shown in the pill at the top of the screen. Truncated past 60 characters | No       | `WiFi Details` |
@@ -53,14 +53,14 @@ bun run deploy
 
 Advanced settings:
 
-| Setting              | Description                                                                           | Required | Default   |
+| Setting              | Description                                                                            | Required | Default   |
 | -------------------- | -------------------------------------------------------------------------------------- | -------- | --------- |
-| `wifi_hidden`        | Set to `true` if the network doesn't broadcast its SSID                               | No       | `false`   |
-| `wifi_show_password` | Also display the password as text on screen, for typing in by hand                    | No       | `true`    |
+| `wifi_hidden`        | Set to `true` if the network doesn't broadcast its SSID                                | No       | `false`   |
+| `wifi_show_password` | Also display the password as text on screen, for typing in by hand                     | No       | `true`    |
 | `bg_color`           | Screen background color — a hex code (e.g. `#08060f`) or CSS color name (e.g. `black`) | No       | `#08060f` |
 | `text_color`         | On-screen text color — a hex code (e.g. `#ffffff`) or CSS color name (e.g. `white`)    | No       | `#ffffff` |
-| `sentry_dsn`         | Sentry Client Key for error capturing                                                 | No       | —         |
-| `locale`             | Language for the on-screen text (`en`, `fr`, `de`, `es`, `pt`; falls back to English) | No       | `en`      |
+| `sentry_dsn`         | Sentry Client Key for error capturing                                                  | No       | —         |
+| `locale`             | Language for the on-screen text (`en`, `fr`, `de`, `es`, `pt`; falls back to English)  | No       | `en`      |
 
 `wifi_show_password` controls whether the password is also rendered as text — when it's off, the password is only ever embedded in the QR code, never shown on screen. When `wifi_security` is `nopass`, or `wifi_password` is left blank, the app always renders an open-network QR code and shows an "Open network" badge instead, regardless of `wifi_show_password` (there's no password to show).
 

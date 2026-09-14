@@ -29,7 +29,9 @@ function parseHexColor(value: string): [number, number, number] | null {
   if (!match) return null
   const digits = match[1]
   const expanded =
-    digits.length === 3 ? digits.replace(/./g, (digit) => digit + digit) : digits
+    digits.length === 3
+      ? digits.replace(/./g, (digit) => digit + digit)
+      : digits
   return [
     parseInt(expanded.slice(0, 2), 16),
     parseInt(expanded.slice(2, 4), 16),
@@ -73,7 +75,9 @@ function relativeLuminance([red, green, blue]: [
     const value = channel / 255
     return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
   }
-  return 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue)
+  return (
+    0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue)
+  )
 }
 
 // Relative luminance above which black text reads better than white — same
@@ -107,11 +111,15 @@ function resolveColors(
 ): { bg: string; text: string } {
   const bgRgb = parseCssColor(bgSetting)
   const bg = bgRgb ? bgSetting.trim() : DEFAULT_BG_COLOR
-  let text = parseCssColor(textSetting) ? textSetting.trim() : DEFAULT_TEXT_COLOR
+  let text = parseCssColor(textSetting)
+    ? textSetting.trim()
+    : DEFAULT_TEXT_COLOR
 
   const ratio = contrastRatio(bg, text)
   if (ratio === null || ratio < MIN_CONTRAST_RATIO) {
-    const bgLuminance = relativeLuminance(bgRgb ?? parseHexColor(DEFAULT_BG_COLOR)!)
+    const bgLuminance = relativeLuminance(
+      bgRgb ?? parseHexColor(DEFAULT_BG_COLOR)!,
+    )
     text = bgLuminance > LIGHT_LUMINANCE_THRESHOLD ? '#000000' : '#ffffff'
   }
 
@@ -148,8 +156,14 @@ function resolveAccentTints(
   const tintRatio = contrastRatio(bg, tint)
   const tint2Ratio = contrastRatio(bg, tint2)
   return {
-    tint: tintRatio !== null && tintRatio >= MIN_CONTRAST_RATIO ? tint : fallbackText,
-    tint2: tint2Ratio !== null && tint2Ratio >= MIN_CONTRAST_RATIO ? tint2 : fallbackText,
+    tint:
+      tintRatio !== null && tintRatio >= MIN_CONTRAST_RATIO
+        ? tint
+        : fallbackText,
+    tint2:
+      tint2Ratio !== null && tint2Ratio >= MIN_CONTRAST_RATIO
+        ? tint2
+        : fallbackText,
   }
 }
 

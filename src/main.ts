@@ -57,6 +57,22 @@ function resolveTranslation(locale: string): Translation {
   return TRANSLATIONS[language] ?? TRANSLATIONS.en
 }
 
+// #badge-text in style.css ellipsizes with CSS alone, so arbitrarily long
+// operator input can never overflow the pill — but relying on that solely
+// means the visible cutoff point silently depends on font metrics and the
+// player's resolution. 60 characters is measured to fit on one line even at
+// 800x480, the smallest resolution Screenly players support
+// (@screenly/edge-apps/test/screenshots' RESOLUTIONS), for realistic prose;
+// truncating to that length up front keeps the cutoff point predictable
+// instead of leaving it to wherever CSS happens to clip.
+const MAX_HEADER_MESSAGE_LENGTH = 60
+
+function truncateHeaderMessage(message: string): string {
+  const trimmed = message.trim()
+  if (trimmed.length <= MAX_HEADER_MESSAGE_LENGTH) return trimmed
+  return `${trimmed.slice(0, MAX_HEADER_MESSAGE_LENGTH - 1).trimEnd()}…`
+}
+
 interface WifiCredentials {
   ssid: string
   password: string
@@ -180,9 +196,11 @@ async function render(): Promise<void> {
   const translation = resolveTranslation(locale)
   const showPassword =
     getSettingWithDefault<string>('wifi_show_password', 'false') === 'true'
-  const headerMessage = getSettingWithDefault<string>(
-    'wifi_header_message',
-    'Welcome — Guest Wi-Fi',
+  const headerMessage = truncateHeaderMessage(
+    getSettingWithDefault<string>(
+      'wifi_header_message',
+      'Welcome — Guest Wi-Fi',
+    ),
   )
 
   document.documentElement.lang = locale.trim().split(/[-_]/)[0] || 'en'

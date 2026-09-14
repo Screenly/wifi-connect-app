@@ -81,10 +81,15 @@
     overflow: hidden;
   }
 
+  /* The header message is operator-editable free text with no hard length
+     enforcement (main.ts only trims it to a sane length as a guideline, not
+     a guarantee), so the pill caps itself at the card's width and ellipsizes
+     rather than pushing past the edge of the screen. */
   .badge {
     display: flex;
     align-items: center;
     gap: 0.6em;
+    max-width: 100%;
     padding: clamp(0.6rem, 1.48cqh, 1.6rem) clamp(1rem, 2.08cqw, 2.4rem);
     border-radius: 999px;
     border: 2px solid color-mix(in srgb, var(--accent-tint-2) 50%, transparent);
@@ -106,6 +111,12 @@
     width: 1em;
     height: 1em;
     flex-shrink: 0;
+  }
+
+  #badge-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
   /* SSIDs run up to 32 characters, and the clamp() below is tuned for

@@ -284,11 +284,11 @@ async function renderQRCode(payload: string): Promise<void> {
   })
 }
 
-// Password is hidden from the UI by default — the QR code is enough to join
-// a secured network, so leaving `wifi_show_password` off means the
-// credential can't be read off the screen by anyone without their phone
-// camera ready. Operators can opt in via that setting if guests should also
-// be able to type the password in by hand.
+// The QR code alone is enough to join a secured network, so
+// `wifi_show_password` controls whether the password is *also* rendered as
+// text on screen for guests who'd rather type it in by hand. It defaults to
+// on; operators who want the password readable only by scanning (not by
+// anyone glancing at or photographing the screen) can turn it off.
 function renderCredentials(
   { ssid, password, security }: WifiCredentials,
   translation: Translation,

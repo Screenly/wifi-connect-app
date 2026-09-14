@@ -4,7 +4,7 @@
 
 Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.
 
-Guests scan the on-screen QR code with their phone camera to join the network automatically. The network name is shown as text for identification, but the password itself is hidden by default — scanning the QR is the only way to connect, so it can't be read off the screen (or a photo of it) by anyone without their own phone in hand. Turn on `wifi_show_password` if guests should also be able to type the password in by hand.
+Guests scan the on-screen QR code with their phone camera to join the network automatically. The network name and, by default, the password are also shown as text for guests who'd rather type them in by hand. Turn off `wifi_show_password` if the password should only be readable by scanning the QR code — that's the only way to connect either way — rather than by anyone glancing at or photographing the screen.
 
 ## Getting Started
 
@@ -62,7 +62,7 @@ Advanced settings:
 | `sentry_dsn`         | Sentry Client Key for error capturing                                                  | No       | —         |
 | `locale`             | Language for the on-screen text (`en`, `fr`, `de`, `es`, `pt`; falls back to English)  | No       | `en`      |
 
-`wifi_show_password` controls whether the password is also rendered as text — when it's off, the password is only ever embedded in the QR code, never shown on screen. When `wifi_security` is `nopass`, or `wifi_password` is left blank, the app always renders an open-network QR code and shows an "Open network" badge instead, regardless of `wifi_show_password` (there's no password to show).
+`wifi_show_password` controls whether the password is also rendered as text — on by default; turn it off so the password is only ever embedded in the QR code, never shown on screen. When `wifi_security` is `nopass`, or `wifi_password` is left blank, the app always renders an open-network QR code and shows an "Open network" badge instead, regardless of `wifi_show_password` (there's no password to show).
 
 `bg_color` and `text_color` fall back to their defaults if unparseable, and `text_color` automatically switches to black or white if the chosen pair would otherwise be indistinguishable from the background.
 

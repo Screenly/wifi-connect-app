@@ -125,7 +125,7 @@ settings:
         advanced: true
         display_order: 2
         help_text: |
-          Also display the Wi-Fi password as text on screen. Off by default — scanning the QR code is enough to join, so leaving this off means the password can't be read off the screen. Turn it on if guests should be able to type it in by hand too.
+          Also display the Wi-Fi password as text on screen, for guests who'd rather type it in by hand. On by default. Turn it off if the password should only be readable by scanning the QR code, not by anyone glancing at or photographing the screen.
   wifi_ssid:
     type: string
     title: Wi-Fi Network Name (SSID)

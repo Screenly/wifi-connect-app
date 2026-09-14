@@ -28,6 +28,20 @@ settings:
         advanced: true
         display_order: 3
         help_text: Sentry Client Key from Sentry SDK for error capturing.
+  wifi_bg_color:
+    type: string
+    default_value: '#08060f'
+    title: Background Color
+    optional: true
+    help_text:
+      schema_version: 1
+      properties:
+        type: string
+        advanced: true
+        display_order: 6
+        help_text: >-
+          Hex color for the screen background (e.g. #08060f). Falls back to
+          the default if it isn't a valid hex color.
   wifi_header_message:
     type: string
     default_value: 'Welcome — Guest Wi-Fi'
@@ -105,3 +119,18 @@ settings:
         type: string
         display_order: 1
         help_text: The name of the Wi-Fi network guests should connect to.
+  wifi_text_color:
+    type: string
+    default_value: '#ffffff'
+    title: Text Color
+    optional: true
+    help_text:
+      schema_version: 1
+      properties:
+        type: string
+        advanced: true
+        display_order: 7
+        help_text: >-
+          Hex color for the on-screen text (e.g. #ffffff). Falls back to a
+          contrasting color automatically if it's too close to the
+          background color to read comfortably.

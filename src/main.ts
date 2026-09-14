@@ -1,6 +1,7 @@
 import QRCode from 'qrcode'
 import {
   getSettingWithDefault,
+  isLightColor,
   setupErrorHandling,
   setupTheme,
   signalReady,
@@ -12,6 +13,74 @@ const WIFI_SPECIAL_CHARS = /([\\;,":])/g
 
 function escapeWifiValue(value: string): string {
   return value.replace(WIFI_SPECIAL_CHARS, '\\$1')
+}
+
+const DEFAULT_BG_COLOR = '#08060f'
+const DEFAULT_TEXT_COLOR = '#ffffff'
+
+// WCAG's "large text" contrast floor (as opposed to the stricter 4.5:1 for
+// body copy) — everything --ink paints here (the SSID, captions, password)
+// renders well above that size threshold, so it's the right bar to guard
+// against an operator picking a background/text pair that's unreadable.
+const MIN_CONTRAST_RATIO = 3
+
+function parseHexColor(value: string): [number, number, number] | null {
+  const match = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value.trim())
+  if (!match) return null
+  const digits = match[1]
+  const expanded =
+    digits.length === 3 ? digits.replace(/./g, (digit) => digit + digit) : digits
+  return [
+    parseInt(expanded.slice(0, 2), 16),
+    parseInt(expanded.slice(2, 4), 16),
+    parseInt(expanded.slice(4, 6), 16),
+  ]
+}
+
+function relativeLuminance([red, green, blue]: [
+  number,
+  number,
+  number,
+]): number {
+  const toLinear = (channel: number) => {
+    const value = channel / 255
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue)
+}
+
+// WCAG contrast ratio between two colors, from 1 (identical) to 21 (black on
+// white). Returns null if either color isn't a hex string we can parse.
+function contrastRatio(hexA: string, hexB: string): number | null {
+  const rgbA = parseHexColor(hexA)
+  const rgbB = parseHexColor(hexB)
+  if (!rgbA || !rgbB) return null
+  const luminanceA = relativeLuminance(rgbA)
+  const luminanceB = relativeLuminance(rgbB)
+  const lighter = Math.max(luminanceA, luminanceB)
+  const darker = Math.min(luminanceA, luminanceB)
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+// wifi_bg_color and wifi_text_color are independent free-text hex settings,
+// so operators can land on an invalid value or a pairing that's too close to
+// read. Fall back to the defaults for anything unparsable, and — if the
+// resulting pair doesn't contrast enough — force the text to whichever of
+// black/white contrasts more with the background rather than ship
+// unreadable text to an unattended screen.
+function resolveColors(
+  bgSetting: string,
+  textSetting: string,
+): { bg: string; text: string } {
+  const bg = parseHexColor(bgSetting) ? bgSetting : DEFAULT_BG_COLOR
+  let text = parseHexColor(textSetting) ? textSetting : DEFAULT_TEXT_COLOR
+
+  const ratio = contrastRatio(bg, text)
+  if (ratio === null || ratio < MIN_CONTRAST_RATIO) {
+    text = isLightColor(bg) ? '#000000' : '#ffffff'
+  }
+
+  return { bg, text }
 }
 
 interface Translation {
@@ -202,6 +271,12 @@ async function render(): Promise<void> {
       'Welcome — Guest Wi-Fi',
     ),
   )
+  const { bg, text } = resolveColors(
+    getSettingWithDefault<string>('wifi_bg_color', DEFAULT_BG_COLOR),
+    getSettingWithDefault<string>('wifi_text_color', DEFAULT_TEXT_COLOR),
+  )
+  document.documentElement.style.setProperty('--bg', bg)
+  document.documentElement.style.setProperty('--ink', text)
 
   document.documentElement.lang = locale.trim().split(/[-_]/)[0] || 'en'
   renderCredentials(credentials, translation, showPassword, headerMessage)

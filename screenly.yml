@@ -40,7 +40,7 @@ settings:
         display_order: 2
         help_text: >-
           The message shown in the pill at the top of the screen. Keep it
-          under 30 characters so it isn't truncated.
+          under 60 characters so it isn't truncated.
   wifi_hidden:
     type: string
     default_value: 'false'

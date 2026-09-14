@@ -60,14 +60,12 @@ function resolveTranslation(locale: string): Translation {
 // #badge-text in style.css ellipsizes with CSS alone, so arbitrarily long
 // operator input can never overflow the pill — but relying on that solely
 // means the visible cutoff point silently depends on font metrics and the
-// player's resolution. 30 characters fits on one line with comfortable
-// margin even at 800x480, the smallest resolution Screenly players support
-// (@screenly/edge-apps/test/screenshots' RESOLUTIONS) — measured overflow
-// there starts around 66 characters for realistic prose, or ~46 in the
-// pathological case of an all-wide-capitals message. Truncating to 30 up
-// front keeps the cutoff point predictable instead of leaving it to
-// wherever CSS happens to clip.
-const MAX_HEADER_MESSAGE_LENGTH = 30
+// player's resolution. 60 characters is measured to fit on one line even at
+// 800x480, the smallest resolution Screenly players support
+// (@screenly/edge-apps/test/screenshots' RESOLUTIONS), for realistic prose;
+// truncating to that length up front keeps the cutoff point predictable
+// instead of leaving it to wherever CSS happens to clip.
+const MAX_HEADER_MESSAGE_LENGTH = 60
 
 function truncateHeaderMessage(message: string): string {
   const trimmed = message.trim()

@@ -11,9 +11,9 @@
        script in index.html for why a *custom* accent doesn't flicker in
        either. */
     --accent: var(--theme-color-primary, #972eff);
-    /* Overridden from main.ts via wifi_bg_color/wifi_text_color once
-       settings are read — these defaults only cover the moment before that
-       JS runs and the case where an operator leaves them unset. */
+    /* Overridden from main.ts via bg_color/text_color once settings are
+       read — these defaults only cover the moment before that JS runs and
+       the case where an operator leaves them unset. */
     --bg: #08060f;
     --ink: #ffffff;
     /* Darkened before it hits the background glow — a pale operator accent

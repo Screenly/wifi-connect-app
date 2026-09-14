@@ -1,7 +1,6 @@
 import QRCode from 'qrcode'
 import {
   getSettingWithDefault,
-  isLightColor,
   setupErrorHandling,
   setupTheme,
   signalReady,
@@ -37,6 +36,33 @@ function parseHexColor(value: string): [number, number, number] | null {
   ]
 }
 
+function parseRgbString(value: string): [number, number, number] | null {
+  const match = /^rgba?\(\s*([\d.]+)\D+([\d.]+)\D+([\d.]+)/i.exec(value)
+  if (!match) return null
+  return [Number(match[1]), Number(match[2]), Number(match[3])]
+}
+
+// Accepts hex and rgb()/rgba() directly, then hands anything else (CSS
+// named colors like "red" or "cornflowerblue", hsl(), etc.) to the browser's
+// own color parser rather than maintaining a list of ~150 color names.
+// Canvas's fillStyle setter silently ignores a value it can't parse, so
+// seeding it with a sentinel first and checking whether it changed is a
+// reliable way to ask "did that parse?" without a real DOM element.
+function parseCssColor(value: string): [number, number, number] | null {
+  const trimmed = value.trim()
+  const direct = parseHexColor(trimmed) ?? parseRgbString(trimmed)
+  if (direct) return direct
+
+  const ctx = document.createElement('canvas').getContext('2d')
+  if (!ctx) return null
+  const sentinel = '#010203'
+  ctx.fillStyle = sentinel
+  ctx.fillStyle = trimmed
+  const resolved = ctx.fillStyle
+  if (resolved === sentinel) return null
+  return parseHexColor(resolved) ?? parseRgbString(resolved)
+}
+
 function relativeLuminance([red, green, blue]: [
   number,
   number,
@@ -49,11 +75,16 @@ function relativeLuminance([red, green, blue]: [
   return 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue)
 }
 
-// WCAG contrast ratio between two colors, from 1 (identical) to 21 (black on
-// white). Returns null if either color isn't a hex string we can parse.
-function contrastRatio(hexA: string, hexB: string): number | null {
-  const rgbA = parseHexColor(hexA)
-  const rgbB = parseHexColor(hexB)
+// Relative luminance above which black text reads better than white — same
+// threshold @screenly/edge-apps' isLightColor() uses internally, restated
+// here because that helper doesn't parse named colors.
+const LIGHT_LUMINANCE_THRESHOLD = 0.179
+
+// WCAG contrast ratio between two CSS colors, from 1 (identical) to 21
+// (black on white). Returns null if either color can't be parsed.
+function contrastRatio(colorA: string, colorB: string): number | null {
+  const rgbA = parseCssColor(colorA)
+  const rgbB = parseCssColor(colorB)
   if (!rgbA || !rgbB) return null
   const luminanceA = relativeLuminance(rgbA)
   const luminanceB = relativeLuminance(rgbB)
@@ -62,22 +93,24 @@ function contrastRatio(hexA: string, hexB: string): number | null {
   return (lighter + 0.05) / (darker + 0.05)
 }
 
-// wifi_bg_color and wifi_text_color are independent free-text hex settings,
-// so operators can land on an invalid value or a pairing that's too close to
-// read. Fall back to the defaults for anything unparsable, and — if the
-// resulting pair doesn't contrast enough — force the text to whichever of
-// black/white contrasts more with the background rather than ship
-// unreadable text to an unattended screen.
+// bg_color and text_color are independent free-text settings (hex,
+// rgb(), or a CSS color name), so operators can land on an invalid value or
+// a pairing that's too close to read. Fall back to the defaults for
+// anything unparsable, and — if the resulting pair doesn't contrast enough
+// — force the text to whichever of black/white contrasts more with the
+// background rather than ship unreadable text to an unattended screen.
 function resolveColors(
   bgSetting: string,
   textSetting: string,
 ): { bg: string; text: string } {
-  const bg = parseHexColor(bgSetting) ? bgSetting : DEFAULT_BG_COLOR
-  let text = parseHexColor(textSetting) ? textSetting : DEFAULT_TEXT_COLOR
+  const bgRgb = parseCssColor(bgSetting)
+  const bg = bgRgb ? bgSetting.trim() : DEFAULT_BG_COLOR
+  let text = parseCssColor(textSetting) ? textSetting.trim() : DEFAULT_TEXT_COLOR
 
   const ratio = contrastRatio(bg, text)
   if (ratio === null || ratio < MIN_CONTRAST_RATIO) {
-    text = isLightColor(bg) ? '#000000' : '#ffffff'
+    const bgLuminance = relativeLuminance(bgRgb ?? parseHexColor(DEFAULT_BG_COLOR)!)
+    text = bgLuminance > LIGHT_LUMINANCE_THRESHOLD ? '#000000' : '#ffffff'
   }
 
   return { bg, text }
@@ -98,7 +131,7 @@ function mixHex(hexA: string, hexB: string, weightA: number): string {
 
 // --accent-tint/--accent-tint-2 in style.css are lightened versions of the
 // operator's *global* Screenly accent color, tuned to read well against this
-// app's original near-black background. Once wifi_bg_color lets an operator
+// app's original near-black background. Once bg_color lets an operator
 // pick their own background, that tint can land anywhere — a light accent on
 // a light custom background is exactly as unreadable as the main bg/text
 // pairing above. Guard each the same way: fall back to the already
@@ -307,8 +340,8 @@ async function render(): Promise<void> {
     ),
   )
   const { bg, text } = resolveColors(
-    getSettingWithDefault<string>('wifi_bg_color', DEFAULT_BG_COLOR),
-    getSettingWithDefault<string>('wifi_text_color', DEFAULT_TEXT_COLOR),
+    getSettingWithDefault<string>('bg_color', DEFAULT_BG_COLOR),
+    getSettingWithDefault<string>('text_color', DEFAULT_TEXT_COLOR),
   )
   const { tint, tint2 } = resolveAccentTints(bg, accentColor, text)
   document.documentElement.style.setProperty('--bg', bg)

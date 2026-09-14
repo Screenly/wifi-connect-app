@@ -17,11 +17,12 @@ function escapeWifiValue(value: string): string {
 const DEFAULT_BG_COLOR = '#08060f'
 const DEFAULT_TEXT_COLOR = '#ffffff'
 
-// WCAG's "large text" contrast floor (as opposed to the stricter 4.5:1 for
-// body copy) — everything --ink paints here (the SSID, captions, password)
-// renders well above that size threshold, so it's the right bar to guard
-// against an operator picking a background/text pair that's unreadable.
-const MIN_CONTRAST_RATIO = 3
+// Deliberately far below WCAG's 3:1/4.5:1 legibility floors — this only
+// exists to catch a background/text pair that's effectively the same color
+// (identical, or a shade apart), not to enforce general accessible contrast.
+// An operator is free to pick a low-contrast-but-distinct pair like blue
+// text on green; 1.67:1 clears this bar even though it fails WCAG AA.
+const MIN_CONTRAST_RATIO = 1.2
 
 function parseHexColor(value: string): [number, number, number] | null {
   const match = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value.trim())
@@ -95,10 +96,11 @@ function contrastRatio(colorA: string, colorB: string): number | null {
 
 // bg_color and text_color are independent free-text settings (hex,
 // rgb(), or a CSS color name), so operators can land on an invalid value or
-// a pairing that's too close to read. Fall back to the defaults for
-// anything unparsable, and — if the resulting pair doesn't contrast enough
-// — force the text to whichever of black/white contrasts more with the
-// background rather than ship unreadable text to an unattended screen.
+// pick the same color (or near enough) for both, making the text invisible.
+// Fall back to the defaults for anything unparsable, and — only when the
+// pair is that close — force the text to whichever of black/white contrasts
+// more with the background. Distinct-but-low-contrast pairs (e.g. blue text
+// on green) are left alone; that's the operator's call, not ours.
 function resolveColors(
   bgSetting: string,
   textSetting: string,
@@ -132,10 +134,10 @@ function mixHex(hexA: string, hexB: string, weightA: number): string {
 // --accent-tint/--accent-tint-2 in style.css are lightened versions of the
 // operator's *global* Screenly accent color, tuned to read well against this
 // app's original near-black background. Once bg_color lets an operator
-// pick their own background, that tint can land anywhere — a light accent on
-// a light custom background is exactly as unreadable as the main bg/text
-// pairing above. Guard each the same way: fall back to the already
-// bg-safe `text` color when the tint alone wouldn't contrast enough.
+// pick their own background, that tint can land anywhere — including
+// matching the background closely enough to disappear. Guard each the same
+// way as resolveColors: fall back to the already-safe `text` color only
+// when the tint is that close to invisible, not merely low-contrast.
 function resolveAccentTints(
   bg: string,
   accentColor: string,

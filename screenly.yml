@@ -57,8 +57,8 @@ settings:
         help_text: >-
           Color for the on-screen text — a hex code (e.g. #ffffff) or a CSS
           color name (e.g. white). Falls back to a contrasting color
-          automatically if it's too close to the background color to read
-          comfortably.
+          automatically only if it matches the background color too closely
+          to be visible at all.
   wifi_header_message:
     type: string
     default_value: 'Welcome — Guest Wi-Fi'

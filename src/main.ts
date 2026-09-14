@@ -83,6 +83,41 @@ function resolveColors(
   return { bg, text }
 }
 
+function mixHex(hexA: string, hexB: string, weightA: number): string {
+  const rgbA = parseHexColor(hexA)
+  const rgbB = parseHexColor(hexB)
+  if (!rgbA || !rgbB) return hexA
+  return `#${rgbA
+    .map((channel, i) =>
+      Math.round(channel * weightA + rgbB[i] * (1 - weightA))
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`
+}
+
+// --accent-tint/--accent-tint-2 in style.css are lightened versions of the
+// operator's *global* Screenly accent color, tuned to read well against this
+// app's original near-black background. Once wifi_bg_color lets an operator
+// pick their own background, that tint can land anywhere — a light accent on
+// a light custom background is exactly as unreadable as the main bg/text
+// pairing above. Guard each the same way: fall back to the already
+// bg-safe `text` color when the tint alone wouldn't contrast enough.
+function resolveAccentTints(
+  bg: string,
+  accentColor: string,
+  fallbackText: string,
+): { tint: string; tint2: string } {
+  const tint = mixHex(accentColor, '#ffffff', 0.3)
+  const tint2 = mixHex(accentColor, '#ffffff', 0.5)
+  const tintRatio = contrastRatio(bg, tint)
+  const tint2Ratio = contrastRatio(bg, tint2)
+  return {
+    tint: tintRatio !== null && tintRatio >= MIN_CONTRAST_RATIO ? tint : fallbackText,
+    tint2: tint2Ratio !== null && tint2Ratio >= MIN_CONTRAST_RATIO ? tint2 : fallbackText,
+  }
+}
+
 interface Translation {
   scanCaption: string
   passwordHint: string
@@ -253,7 +288,7 @@ function renderCredentials(
 
 async function render(): Promise<void> {
   setupErrorHandling()
-  setupTheme()
+  const { primary: accentColor } = setupTheme()
 
   const credentials: WifiCredentials = {
     ssid: getSettingWithDefault<string>('wifi_ssid', 'Screenly Guest Wi-Fi'),
@@ -275,8 +310,11 @@ async function render(): Promise<void> {
     getSettingWithDefault<string>('wifi_bg_color', DEFAULT_BG_COLOR),
     getSettingWithDefault<string>('wifi_text_color', DEFAULT_TEXT_COLOR),
   )
+  const { tint, tint2 } = resolveAccentTints(bg, accentColor, text)
   document.documentElement.style.setProperty('--bg', bg)
   document.documentElement.style.setProperty('--ink', text)
+  document.documentElement.style.setProperty('--accent-tint', tint)
+  document.documentElement.style.setProperty('--accent-tint-2', tint2)
 
   document.documentElement.lang = locale.trim().split(/[-_]/)[0] || 'en'
   renderCredentials(credentials, translation, showPassword, headerMessage)

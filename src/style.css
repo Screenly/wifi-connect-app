@@ -108,6 +108,12 @@
     flex-shrink: 0;
   }
 
+  /* SSIDs run up to 32 characters, and the clamp() below is tuned for
+     typical names — a name near that limit would wrap or overflow at this
+     size. main.ts's fitSsidFontSize() shrinks the font-size (inline style,
+     read back from this clamp as the starting point) until the name fits
+     on the single line implied by white-space: nowrap below, so CSS only
+     needs to supply the ceiling. */
   .ssid {
     margin: 0;
     max-width: 100%;
@@ -117,8 +123,8 @@
     letter-spacing: -0.03em;
     color: var(--ink);
     text-align: center;
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .status-badge {

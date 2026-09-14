@@ -87,6 +87,21 @@ function buildWifiPayload({
   return `${segments.join(';')};;`
 }
 
+const MIN_SSID_FONT_SIZE_PX = 16
+
+// .ssid's CSS font-size is a clamp() tuned for typical SSID lengths, but
+// names run up to 32 characters — long enough to overflow that size on the
+// single line white-space: nowrap requires (see style.css). Shrink the font
+// size in JS, starting from the CSS value, until the name fits.
+function fitSsidFontSize(): void {
+  const el = document.getElementById('ssid')!
+  el.style.fontSize = ''
+  if (el.scrollWidth <= el.clientWidth || el.clientWidth === 0) return
+  const cssFontSize = parseFloat(getComputedStyle(el).fontSize)
+  const scale = el.clientWidth / el.scrollWidth
+  el.style.fontSize = `${Math.max(MIN_SSID_FONT_SIZE_PX, Math.floor(cssFontSize * scale))}px`
+}
+
 async function renderQRCode(payload: string): Promise<void> {
   const container = document.getElementById('qr-code')!
   container.innerHTML = await QRCode.toString(payload, {
@@ -172,6 +187,8 @@ async function render(): Promise<void> {
 
   document.documentElement.lang = locale.trim().split(/[-_]/)[0] || 'en'
   renderCredentials(credentials, translation, showPassword, headerMessage)
+  fitSsidFontSize()
+  void document.fonts.ready.then(fitSsidFontSize)
   await renderQRCode(buildWifiPayload(credentials))
 
   signalReady()
@@ -180,3 +197,7 @@ async function render(): Promise<void> {
 document.addEventListener('DOMContentLoaded', () => {
   void render()
 })
+
+// Refits the SSID on rotation/resize — the portrait media query in
+// style.css changes both the clamp() ceiling and the available width.
+window.addEventListener('resize', fitSsidFontSize)

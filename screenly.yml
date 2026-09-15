@@ -141,4 +141,4 @@ settings:
         display_order: 1
         help_text: >-
           The name of the Wi-Fi network guests should connect to. Maximum
-          32 characters.
+          32 bytes (the IEEE 802.11 SSID limit).

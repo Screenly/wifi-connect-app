@@ -44,9 +44,7 @@ function clampChannel(channel: number): number {
 }
 
 function rgbToHex([red, green, blue]: [number, number, number]): string {
-  return `#${[red, green, blue]
-    .map((channel) => clampChannel(channel).toString(16).padStart(2, '0'))
-    .join('')}`
+  return `#${[red, green, blue].map((c) => clampChannel(c).toString(16).padStart(2, '0')).join('')}`
 }
 
 // Complete rgb()/rgba() only — not end-anchored matching would accept
@@ -58,11 +56,9 @@ function parseRgbString(value: string): [number, number, number] | null {
       value.trim(),
     )
   if (!match) return null
-  const red = Number(match[1])
-  const green = Number(match[2])
-  const blue = Number(match[3])
-  if (![red, green, blue].every(Number.isFinite)) return null
-  return [clampChannel(red), clampChannel(green), clampChannel(blue)]
+  const channels = [Number(match[1]), Number(match[2]), Number(match[3])]
+  if (!channels.every(Number.isFinite)) return null
+  return channels.map(clampChannel) as [number, number, number]
 }
 
 // Accepts hex and rgb()/rgba() directly, then hands anything else (CSS
@@ -226,9 +222,9 @@ const TRANSLATIONS: Record<string, Translation> = {
 
 function resolveLanguage(locale: string): keyof typeof TRANSLATIONS {
   const language = locale.trim().toLowerCase().split(/[-_]/)[0]
-  return language in TRANSLATIONS
-    ? (language as keyof typeof TRANSLATIONS)
-    : 'en'
+  return (
+    language in TRANSLATIONS ? language : 'en'
+  ) as keyof typeof TRANSLATIONS
 }
 
 // #badge-text in style.css ellipsizes with CSS alone, so arbitrarily long
@@ -240,7 +236,7 @@ function resolveLanguage(locale: string): keyof typeof TRANSLATIONS {
 // truncating to that length up front keeps the cutoff point predictable
 // instead of leaving it to wherever CSS happens to clip.
 const MAX_HEADER_MESSAGE_LENGTH = 60
-const MAX_SSID_LENGTH = 32
+const MAX_SSID_OCTETS = 32
 
 function truncateHeaderMessage(message: string): string {
   const trimmed = message.trim()
@@ -248,11 +244,18 @@ function truncateHeaderMessage(message: string): string {
   return `${trimmed.slice(0, MAX_HEADER_MESSAGE_LENGTH - 1).trimEnd()}…`
 }
 
-// IEEE 802.11 caps an SSID at 32 octets. The setting is free text, so
-// slice to 32 characters (no ellipsis — that would change the network
-// name) and use the same value on screen and in the QR payload.
+// IEEE 802.11 caps an SSID at 32 octets, not 32 JS characters. Do not
+// trim — leading/trailing spaces are valid in a network name — and do not
+// add an ellipsis (that would change the name). Walk UTF-8 code points so
+// a multibyte character is never split, and use that same value on screen
+// and in the QR payload.
 function truncateSsid(ssid: string): string {
-  return ssid.trim().slice(0, MAX_SSID_LENGTH)
+  const encoder = new TextEncoder()
+  return [...ssid].reduce(
+    (acc, c) =>
+      encoder.encode(acc + c).length > MAX_SSID_OCTETS ? acc : acc + c,
+    '',
+  )
 }
 
 interface WifiCredentials {
@@ -288,7 +291,7 @@ function buildWifiPayload({
 const MIN_SSID_FONT_SIZE_PX = 16
 
 // .ssid's CSS font-size is a clamp() tuned for typical SSID lengths, but
-// names run up to 32 characters — long enough to overflow that size on the
+// names run up to 32 bytes — long enough to overflow that size on the
 // single line white-space: nowrap requires (see style.css). Shrink the font
 // size in JS, starting from the CSS value, until the name fits.
 function fitSsidFontSize(): void {

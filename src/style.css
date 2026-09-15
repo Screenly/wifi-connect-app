@@ -126,7 +126,7 @@
     overflow-wrap: anywhere;
   }
 
-  /* SSIDs are truncated to 32 characters in main.ts. The clamp() below is
+  /* SSIDs are truncated to 32 UTF-8 bytes in main.ts. The clamp() below is
      tuned for typical names — a name near that limit would wrap or overflow
      at this size. fitSsidFontSize() shrinks the font-size (inline style,
      read back from this clamp as the starting point) until the name fits

@@ -28,7 +28,7 @@ The layout is written in plain, responsive CSS (flexbox, `clamp()`, and orientat
 
 The card's accent color still follows the operator's `screenly_color_accent`, but the background and text colors are independent settings (`bg_color` / `text_color`, defaulting to near-black and white) rather than derived from it — a pale or near-white accent used to wash out the card and drag text contrast down with it when they were tied together. Both accept a hex code or a CSS color name, and fall back to their defaults if unparseable. A lightweight guard only overrides `text_color` when it's close enough to `bg_color` to be effectively invisible (e.g. white text on a white background) — any other pairing, however low-contrast by strict accessibility standards, is left to the operator's own judgment.
 
-The SSID renders on a single line at any length up to the 32-character Wi-Fi limit — `fitSsidFontSize()` in `src/main.ts` shrinks its font size (measured against the actual rendered width, re-run on resize/rotation) rather than letting it wrap or overflow. The header pill (`wifi_header_message`) instead truncates with an ellipsis past 60 characters, since it's a supporting label rather than the card's focal point.
+The SSID renders on a single line at any length up to the 32-byte Wi-Fi limit — `fitSsidFontSize()` in `src/main.ts` shrinks its font size (measured against the actual rendered width, re-run on resize/rotation) rather than letting it wrap or overflow. The header pill (`wifi_header_message`) instead truncates with an ellipsis past 60 characters, since it's a supporting label rather than the card's focal point.
 
 ## Build
 

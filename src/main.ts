@@ -237,11 +237,11 @@ function resolveLanguage(locale: string): keyof typeof TRANSLATIONS {
 // instead of leaving it to wherever CSS happens to clip.
 const MAX_HEADER_MESSAGE_LENGTH = 60
 const MAX_SSID_OCTETS = 32
-
 function truncateHeaderMessage(message: string): string {
   const characters = [...message.trim()]
   if (characters.length <= MAX_HEADER_MESSAGE_LENGTH) return characters.join('')
-  return `${characters.slice(0, MAX_HEADER_MESSAGE_LENGTH - 1).join('').trimEnd()}…`
+  characters.length = MAX_HEADER_MESSAGE_LENGTH - 1
+  return `${characters.join('').trimEnd()}…`
 }
 
 // IEEE 802.11 caps an SSID at 32 octets, not 32 JS characters. Do not
@@ -288,19 +288,17 @@ function buildWifiPayload({
   return `${segments.join(';')};;`
 }
 
-const MIN_SSID_FONT_SIZE_PX = 16
-
 // .ssid's CSS font-size is a clamp() tuned for typical SSID lengths, but
 // names run up to 32 bytes — long enough to overflow that size on the
 // single line white-space: nowrap requires (see style.css). Shrink the font
-// size in JS, starting from the CSS value, until the name fits.
+// size in JS, starting from the CSS value, until the name fits (16px floor).
 function fitSsidFontSize(): void {
   const el = document.getElementById('ssid')!
   el.style.fontSize = ''
   if (el.scrollWidth <= el.clientWidth || el.clientWidth === 0) return
   const cssFontSize = parseFloat(getComputedStyle(el).fontSize)
   const scale = el.clientWidth / el.scrollWidth
-  el.style.fontSize = `${Math.max(MIN_SSID_FONT_SIZE_PX, Math.floor(cssFontSize * scale))}px`
+  el.style.fontSize = `${Math.max(16, Math.floor(cssFontSize * scale))}px`
 }
 
 async function renderQRCode(payload: string): Promise<void> {

@@ -1,5 +1,7 @@
 # Wi-Fi QR Share
 
+![1080p Screenshot](/screenshots/qr-wifi-app-with-password-1920x1080.webp)
+
 ![1080p Screenshot](/screenshots/qr-wifi-app-1920x1080.webp)
 
 Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.

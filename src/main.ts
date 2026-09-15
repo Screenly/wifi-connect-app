@@ -39,10 +39,30 @@ function parseHexColor(value: string): [number, number, number] | null {
   ]
 }
 
+function clampChannel(channel: number): number {
+  return Math.max(0, Math.min(255, Math.round(channel)))
+}
+
+function rgbToHex([red, green, blue]: [number, number, number]): string {
+  return `#${[red, green, blue]
+    .map((channel) => clampChannel(channel).toString(16).padStart(2, '0'))
+    .join('')}`
+}
+
+// Complete rgb()/rgba() only — not end-anchored matching would accept
+// `rgb(255, 0, 0)junk` and treat it as valid. Channels are clamped to
+// 0–255 so out-of-range values can't produce NaN luminance.
 function parseRgbString(value: string): [number, number, number] | null {
-  const match = /^rgba?\(\s*([\d.]+)\D+([\d.]+)\D+([\d.]+)/i.exec(value)
+  const match =
+    /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*[\d.]+)?\s*\)$/i.exec(
+      value.trim(),
+    )
   if (!match) return null
-  return [Number(match[1]), Number(match[2]), Number(match[3])]
+  const red = Number(match[1])
+  const green = Number(match[2])
+  const blue = Number(match[3])
+  if (![red, green, blue].every(Number.isFinite)) return null
+  return [clampChannel(red), clampChannel(green), clampChannel(blue)]
 }
 
 // Accepts hex and rgb()/rgba() directly, then hands anything else (CSS
@@ -110,10 +130,9 @@ function resolveColors(
   textSetting: string,
 ): { bg: string; text: string } {
   const bgRgb = parseCssColor(bgSetting)
-  const bg = bgRgb ? bgSetting.trim() : DEFAULT_BG_COLOR
-  let text = parseCssColor(textSetting)
-    ? textSetting.trim()
-    : DEFAULT_TEXT_COLOR
+  const bg = bgRgb ? rgbToHex(bgRgb) : DEFAULT_BG_COLOR
+  const textRgb = parseCssColor(textSetting)
+  let text = textRgb ? rgbToHex(textRgb) : DEFAULT_TEXT_COLOR
 
   const ratio = contrastRatio(bg, text)
   if (ratio === null || ratio < MIN_CONTRAST_RATIO) {
@@ -205,9 +224,11 @@ const TRANSLATIONS: Record<string, Translation> = {
   },
 }
 
-function resolveTranslation(locale: string): Translation {
+function resolveLanguage(locale: string): keyof typeof TRANSLATIONS {
   const language = locale.trim().toLowerCase().split(/[-_]/)[0]
-  return TRANSLATIONS[language] ?? TRANSLATIONS.en
+  return language in TRANSLATIONS
+    ? (language as keyof typeof TRANSLATIONS)
+    : 'en'
 }
 
 // #badge-text in style.css ellipsizes with CSS alone, so arbitrarily long
@@ -327,8 +348,8 @@ function renderCredentials(
   document.getElementById('divider')!.hidden = !shouldShowPassword
 
   // Portrait rebuilds the row into a grid (see the orientation: portrait
-  // block in style.css) with a fixed-height row reserved for the password
-  // block so the QR above it never moves between the shown/hidden states.
+  // block in style.css) with a reserved password row so the QR above it
+  // stays put for typical passwords between the shown/hidden states.
   // Which state applies decides both the grid template and which element
   // lands in which row, so it's driven from here rather than duplicated
   // per-element hidden checks in CSS.
@@ -356,9 +377,10 @@ async function render(): Promise<void> {
     hidden: getSettingWithDefault<string>('wifi_hidden', 'false') === 'true',
   }
   const locale = getSettingWithDefault<string>('locale', 'en')
-  const translation = resolveTranslation(locale)
+  const language = resolveLanguage(locale)
+  const translation = TRANSLATIONS[language]
   const showPassword =
-    getSettingWithDefault<string>('wifi_show_password', 'false') === 'true'
+    getSettingWithDefault<string>('wifi_show_password', 'true') === 'true'
   const headerMessage = truncateHeaderMessage(
     getSettingWithDefault<string>('wifi_header_message', 'WiFi Details'),
   )
@@ -372,7 +394,7 @@ async function render(): Promise<void> {
   document.documentElement.style.setProperty('--accent-tint', tint)
   document.documentElement.style.setProperty('--accent-tint-2', tint2)
 
-  document.documentElement.lang = locale.trim().split(/[-_]/)[0] || 'en'
+  document.documentElement.lang = language
   renderCredentials(credentials, translation, showPassword, headerMessage)
   fitSsidFontSize()
   void document.fonts.ready.then(fitSsidFontSize)

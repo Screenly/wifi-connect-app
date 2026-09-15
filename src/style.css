@@ -85,10 +85,10 @@
     overflow: hidden;
   }
 
-  /* The header message is operator-editable free text with no hard length
-     enforcement (main.ts only trims it to a sane length as a guideline, not
-     a guarantee), so the pill caps itself at the card's width and ellipsizes
-     rather than pushing past the edge of the screen. */
+  /* The header message is operator-editable free text. main.ts truncates
+     every value over 60 characters and appends an ellipsis; the pill also
+     caps itself at the card's width and ellipsizes rather than pushing
+     past the edge of the screen. */
   .badge {
     display: flex;
     align-items: center;
@@ -121,6 +121,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
+    /* No effect while landscape keeps white-space: nowrap; lets a
+       60-character no-space message wrap in portrait instead of clipping. */
+    overflow-wrap: anywhere;
   }
 
   /* SSIDs are truncated to 32 characters in main.ts. The clamp() below is
@@ -246,7 +249,7 @@
      `.content-row` steps out of the way via `display: contents` so its
      children (the QR block, divider, password block) become direct grid
      items, positioned by the explicit `grid-row`s below. The password
-     block's row is a fixed height reserved whether or not it has content
+     block's row keeps a minimum height whether or not it has content
      — swapped per state so the reserved row only appears where the QR
      needs to sit still (5a/5b), not where there's nothing to keep steady
      against (the open-network state). */
@@ -265,12 +268,16 @@
       );
     }
 
-    /* password shown/hidden: badge, title, QR, password(fixed) — row 4
-       stays reserved even with the password block hidden, so the QR
-       (row 3) never moves between the two states. */
+    /* password shown/hidden: badge, title, QR, password — row 4 keeps a
+       minimum height even with the password block hidden, so the QR
+       (row 3) doesn't jump for typical passwords. minmax lets a long
+       (up to 63-character) password grow the row instead of clipping. */
     .card.state-password,
     .card.state-no-password {
-      grid-template-rows: auto auto auto clamp(4rem, 9.06cqh, 24rem);
+      grid-template-rows: auto auto auto minmax(
+          clamp(4rem, 9.06cqh, 24rem),
+          auto
+        );
     }
 
     /* open network: badge, title, open-network pill, QR — no fixed
@@ -346,6 +353,8 @@
     .password-block {
       align-items: center;
       gap: clamp(0.3rem, 1.04cqh, 0.9rem);
+      max-width: 100%;
+      min-width: 0;
     }
 
     .password-label {
@@ -354,6 +363,8 @@
 
     .password {
       font-size: clamp(1.3rem, 4.375cqh, 12rem);
+      text-align: center;
+      max-width: 100%;
     }
   }
 }

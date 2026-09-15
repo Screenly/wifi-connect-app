@@ -135,4 +135,6 @@ settings:
       properties:
         type: string
         display_order: 1
-        help_text: The name of the Wi-Fi network guests should connect to.
+        help_text: >-
+          The name of the Wi-Fi network guests should connect to. Maximum
+          32 characters.

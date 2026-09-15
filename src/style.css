@@ -133,7 +133,10 @@
     margin: 0;
     max-width: 100%;
     font-size: clamp(2.4rem, min(15.9cqh, 9cqw), 22rem);
-    line-height: 0.95;
+    /* Tight values (~1.0) clip descenders on g/j/p/q/y. 1.15 keeps the
+       heading compact without cutting those tails. overflow: hidden stays
+       so long names don't spill sideways while fitSsidFontSize() shrinks. */
+    line-height: 1.15;
     font-weight: 700;
     letter-spacing: -0.03em;
     color: var(--ink);

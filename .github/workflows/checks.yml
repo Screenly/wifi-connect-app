@@ -15,4 +15,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: Screenly/edge-apps-actions/checks@v1
+      - uses: Screenly/edge-apps-actions/checks@f4ccd2bd50db5fb0a5147d287ac03cafe552d29b

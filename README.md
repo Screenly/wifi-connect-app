@@ -1,8 +1,8 @@
 # Wi-Fi QR Share
 
-![1080p Screenshot](/screenshots/qr-wifi-app-with-password-1920x1080.webp)
+![1080p Screenshot](screenshots/qr-wifi-app-with-password-1920x1080.webp)
 
-![1080p Screenshot](/screenshots/qr-wifi-app-1920x1080.webp)
+![1080p Screenshot](screenshots/qr-wifi-app-1920x1080.webp)
 
 Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.
 
@@ -10,7 +10,7 @@ Guests scan the on-screen QR code with their phone camera to join the network au
 
 ## Getting Started
 
-Install dependencies:
+Install the [Screenly CLI](https://www.screenly.io/docs/developers/cli/overview/install/) first (`brew install screenly-cli` on macOS). `bun run dev` generates `mock-data.yml` with it, and `bun run deploy` uses it for local one-off pushes. Then install dependencies:
 
 ```bash
 bun install
@@ -38,7 +38,7 @@ bun run build
 
 ## Deployment
 
-Deployment is handled by CI (see below), not run by hand. `bun run deploy` remains available for local one-off pushes:
+Deployment is handled by CI (see below), not run by hand. `bun run deploy` remains available for local one-off pushes (requires the Screenly CLI):
 
 ```bash
 bun run deploy

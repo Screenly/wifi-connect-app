@@ -1,6 +1,10 @@
 ---
 syntax: manifest_v1
 description: 'Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.'
+icon: https://playground.srly.io/edge-apps/icons/qr-wifi-app.svg
+author: Screenly, Inc.
+categories:
+  - Utilities
 ready_signal: true
 settings:
   bg_color:
@@ -137,4 +141,4 @@ settings:
         display_order: 1
         help_text: >-
           The name of the Wi-Fi network guests should connect to. Maximum
-          32 characters; longer names are truncated.
+          32 characters.

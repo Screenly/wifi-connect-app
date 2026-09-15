@@ -239,9 +239,9 @@ const MAX_HEADER_MESSAGE_LENGTH = 60
 const MAX_SSID_OCTETS = 32
 
 function truncateHeaderMessage(message: string): string {
-  const trimmed = message.trim()
-  if (trimmed.length <= MAX_HEADER_MESSAGE_LENGTH) return trimmed
-  return `${trimmed.slice(0, MAX_HEADER_MESSAGE_LENGTH - 1).trimEnd()}…`
+  const characters = [...message.trim()]
+  if (characters.length <= MAX_HEADER_MESSAGE_LENGTH) return characters.join('')
+  return `${characters.slice(0, MAX_HEADER_MESSAGE_LENGTH - 1).join('').trimEnd()}…`
 }
 
 // IEEE 802.11 caps an SSID at 32 octets, not 32 JS characters. Do not

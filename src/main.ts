@@ -222,9 +222,9 @@ const TRANSLATIONS: Record<string, Translation> = {
 
 function resolveLanguage(locale: string): keyof typeof TRANSLATIONS {
   const language = locale.trim().toLowerCase().split(/[-_]/)[0]
-  return (
-    language in TRANSLATIONS ? language : 'en'
-  ) as keyof typeof TRANSLATIONS
+  return Object.hasOwn(TRANSLATIONS, language)
+    ? (language as keyof typeof TRANSLATIONS)
+    : 'en'
 }
 
 // #badge-text in style.css ellipsizes with CSS alone, so arbitrarily long

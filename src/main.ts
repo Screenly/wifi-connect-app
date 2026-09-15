@@ -219,11 +219,19 @@ function resolveTranslation(locale: string): Translation {
 // truncating to that length up front keeps the cutoff point predictable
 // instead of leaving it to wherever CSS happens to clip.
 const MAX_HEADER_MESSAGE_LENGTH = 60
+const MAX_SSID_LENGTH = 32
 
 function truncateHeaderMessage(message: string): string {
   const trimmed = message.trim()
   if (trimmed.length <= MAX_HEADER_MESSAGE_LENGTH) return trimmed
   return `${trimmed.slice(0, MAX_HEADER_MESSAGE_LENGTH - 1).trimEnd()}…`
+}
+
+// IEEE 802.11 caps an SSID at 32 octets. The setting is free text, so
+// slice to 32 characters (no ellipsis — that would change the network
+// name) and use the same value on screen and in the QR payload.
+function truncateSsid(ssid: string): string {
+  return ssid.trim().slice(0, MAX_SSID_LENGTH)
 }
 
 interface WifiCredentials {
@@ -340,7 +348,9 @@ async function render(): Promise<void> {
   const { primary: accentColor } = setupTheme()
 
   const credentials: WifiCredentials = {
-    ssid: getSettingWithDefault<string>('wifi_ssid', 'Screenly Guest Wi-Fi'),
+    ssid: truncateSsid(
+      getSettingWithDefault<string>('wifi_ssid', 'Screenly Guest Wi-Fi'),
+    ),
     password: getSettingWithDefault<string>('wifi_password', ''),
     security: getSettingWithDefault<string>('wifi_security', 'WPA'),
     hidden: getSettingWithDefault<string>('wifi_hidden', 'false') === 'true',

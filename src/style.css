@@ -123,9 +123,9 @@
     min-width: 0;
   }
 
-  /* SSIDs run up to 32 characters, and the clamp() below is tuned for
-     typical names — a name near that limit would wrap or overflow at this
-     size. main.ts's fitSsidFontSize() shrinks the font-size (inline style,
+  /* SSIDs are truncated to 32 characters in main.ts. The clamp() below is
+     tuned for typical names — a name near that limit would wrap or overflow
+     at this size. fitSsidFontSize() shrinks the font-size (inline style,
      read back from this clamp as the starting point) until the name fits
      on the single line implied by white-space: nowrap below, so CSS only
      needs to supply the ceiling. */

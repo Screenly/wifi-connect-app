@@ -10,8 +10,6 @@ Guests scan the on-screen QR code with their phone camera to join the network au
 
 ## Getting Started
 
-Install the [Screenly CLI](https://www.screenly.io/docs/developers/cli/overview/install/) first (`brew install screenly-cli` on macOS). `bun run dev` generates `mock-data.yml` with it, and `bun run deploy` uses it for local one-off pushes. Then install dependencies:
-
 ```bash
 bun install
 ```
@@ -19,7 +17,8 @@ bun install
 ## Development
 
 ```bash
-bun run dev
+bun install      # Install dependencies
+bun run dev      # Start development server
 ```
 
 Set any setting (e.g. `wifi_ssid` / `wifi_password` / `wifi_security` / `wifi_hidden` / `bg_color` / `text_color`) in `mock-data.yml` (or `screenly.yml`'s `default_value`s) to preview real-looking data locally.
@@ -38,11 +37,15 @@ bun run build
 
 ## Deployment
 
-Deployment is handled by CI (see below), not run by hand. `bun run deploy` remains available for local one-off pushes (requires the Screenly CLI):
+Create and deploy the Edge App:
 
 ```bash
+screenly edge-app create --name qr-wifi-app --in-place
 bun run deploy
+screenly edge-app instance create
 ```
+
+Pushes to `development` / `main` are also deployed by CI (see below).
 
 ## Configuration
 

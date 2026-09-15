@@ -21,7 +21,7 @@
        mix it toward the background instead of using it raw. */
     --accent-glow: color-mix(in srgb, var(--accent) 55%, var(--bg));
     /* Lightened tints for small accent-colored text/iconography, which read
-       poorly in the raw accent against this dark a background. */
+     poorly in the raw accent against this dark background.
     --accent-tint: color-mix(in srgb, var(--accent) 30%, white);
     --accent-tint-2: color-mix(in srgb, var(--accent) 50%, white);
   }

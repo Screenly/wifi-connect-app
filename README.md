@@ -37,15 +37,25 @@ bun run build
 
 ## Deployment
 
-Create and deploy the Edge App:
-
 ```bash
 screenly edge-app create --name qr-wifi-app --in-place
 bun run deploy
 screenly edge-app instance create
 ```
 
-Pushes to `development` / `main` are also deployed by CI (see below).
+Stage and production share a single `screenly.yml` with no `id`. The Edge App ID
+for each environment is supplied by GitHub:
+
+| Source                                       | Used when                                                                |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| `EDGE_APP_ID` environment secret             | Set on the `stage` or `production` GitHub Environment (takes precedence) |
+| `STAGE_EDGE_APP_ID` repository variable      | Fallback for stage                                                       |
+| `PRODUCTION_EDGE_APP_ID` repository variable | Fallback for production                                                  |
+
+Run **Initialize Edge App** against stage or production to create the app, then
+store the printed id in the matching variable (or environment secret). **Update
+Edge App** deploys on push to `development` (stage) and `master` (production),
+and can also be run by hand against stage.
 
 ## Configuration
 
@@ -87,12 +97,10 @@ This generates WebP screenshots for all 10 supported Screenly resolutions into t
 
 ## CI/CD
 
-This repo follows the same [`Screenly/edge-apps-actions`](https://github.com/Screenly/edge-apps-actions) workflow used across Screenly's Edge Apps:
+This repo follows the same [`Screenly/edge-apps-actions`](https://github.com/Screenly/edge-apps-actions) `@v26.9.0` workflow used across Screenly's Edge Apps (matching [`Screenly/8bit-fireplace`](https://github.com/Screenly/8bit-fireplace)):
 
-- **[Checks](.github/workflows/checks.yml)** — runs on every push/PR to `development` and `main`: format check, lint, build, test.
-- **[Update Edge App](.github/workflows/update-edge-app.yml)** — deploys to **stage** on push to `development` (or manual dispatch), and to **production** on push to `main`.
+- **[Checks](.github/workflows/checks.yml)** — runs on every push/PR to `development` and `master`: format check, lint, build, test.
+- **[Update Edge App](.github/workflows/update-edge-app.yml)** — deploys to **stage** on push to `development` (or manual dispatch), and to **production** on push to `master`.
 - **[Initialize Edge App](.github/workflows/initialize-edge-app.yml)** — one-off, manually triggered (`workflow_dispatch`) to register a brand-new Edge App + instance in `stage` or `production`.
 
-Before these can actually deploy, each environment needs to be set up once in the repo (Settings → Environments → `stage` / `production`), with a `SCREENLY_API_TOKEN` secret. This app identifies its Edge App via the `edge_app_id` input on both workflows (pinned to a specific `edge-apps-actions` commit ahead of its next tagged release, matching [`Screenly/airtable-app#16`](https://github.com/Screenly/airtable-app/pull/16) and [`Screenly/3d-text-app`](https://github.com/Screenly/3d-text-app)) — sourced from an `EDGE_APP_ID` secret, falling back to `STAGE_EDGE_APP_ID` / `PRODUCTION_EDGE_APP_ID` repo variables per environment — rather than an id committed into the manifest, so there's a single `screenly.yml` shared by both environments instead of a separate `screenly_qc.yml` for stage.
-
-Set `STAGE_EDGE_APP_ID` and `PRODUCTION_EDGE_APP_ID` (Settings → Secrets and variables → Actions → Variables) to each environment's Edge App id before running **Initialize Edge App** or **Update Edge App** — get the id either from the Screenly dashboard for an existing Edge App, or from **Initialize Edge App**'s output when registering a new one.
+Before these can actually deploy, each environment needs to be set up once in the repo (Settings → Environments → `stage` / `production`), with a `SCREENLY_API_TOKEN` secret. See [Deployment](#deployment) for how Edge App IDs are supplied via GitHub variables/secrets.

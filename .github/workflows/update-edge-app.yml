@@ -5,9 +5,9 @@ on:
   push:
     branches:
       - development
-      - main
+      - master
 
-run-name: Updating Wi-Fi QR Share in ${{ github.event_name == 'workflow_dispatch' && 'stage' || (github.ref == 'refs/heads/main' && 'production' || 'stage') }}
+run-name: Updating Wi-Fi QR Share in ${{ github.event_name == 'workflow_dispatch' && 'stage' || (github.ref == 'refs/heads/master' && 'production' || 'stage') }}
 
 jobs:
   deploy-stage:
@@ -17,7 +17,7 @@ jobs:
     environment: stage
     steps:
       - uses: actions/checkout@v7
-      - uses: Screenly/edge-apps-actions/update@f4ccd2bd50db5fb0a5147d287ac03cafe552d29b
+      - uses: Screenly/edge-apps-actions/update@v26.9.0
         with:
           screenly_api_token: ${{ secrets.SCREENLY_API_TOKEN }}
           environment: stage
@@ -27,11 +27,11 @@ jobs:
   deploy-production:
     name: Updating Wi-Fi QR Share in production
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     environment: production
     steps:
       - uses: actions/checkout@v7
-      - uses: Screenly/edge-apps-actions/update@f4ccd2bd50db5fb0a5147d287ac03cafe552d29b
+      - uses: Screenly/edge-apps-actions/update@v26.9.0
         with:
           screenly_api_token: ${{ secrets.SCREENLY_API_TOKEN }}
           environment: production

@@ -27,9 +27,6 @@ jobs:
     name: Initializing ${{ inputs.edge_app_name }} in ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    permissions:
-      contents: read
-      variables: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -38,7 +35,7 @@ jobs:
       # First-time stage init has no STAGE_EDGE_APP_ID yet, so edge-apps-actions
       # still selects screenly_qc.yml. This repo keeps a single screenly.yml —
       # copy it for the runner only so create can proceed without a committed
-      # dual manifest. After create, the id is saved to the repo variable below.
+      # dual manifest.
       - name: Ensure stage manifest for first-time init
         if: inputs.environment == 'stage'
         run: |
@@ -79,5 +76,20 @@ jobs:
             VAR_NAME=PRODUCTION_EDGE_APP_ID
           fi
 
-          gh variable set "$VAR_NAME" --body "$ID" --repo "${{ github.repository }}"
-          echo "Set repository variable $VAR_NAME=$ID"
+          {
+            echo "## Edge App ID"
+            echo ""
+            echo "Created Edge App id: \`$ID\`"
+            echo ""
+            echo "Store it as repository variable \`$VAR_NAME\` (Settings → Secrets and variables → Actions → Variables) if auto-set below does not succeed."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if gh variable set "$VAR_NAME" --body "$ID" --repo "${{ github.repository }}"; then
+            echo "Set repository variable $VAR_NAME=$ID"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Automatically set \`$VAR_NAME\`." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::Could not auto-set $VAR_NAME with GITHUB_TOKEN. Set it manually to: $ID"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Auto-set failed** — set \`$VAR_NAME=$ID\` manually." >> "$GITHUB_STEP_SUMMARY"
+          fi

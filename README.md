@@ -52,10 +52,11 @@ for each environment is supplied by GitHub:
 | `STAGE_EDGE_APP_ID` repository variable      | Fallback for stage                                                       |
 | `PRODUCTION_EDGE_APP_ID` repository variable | Fallback for production                                                  |
 
-Run **Initialize Edge App** against stage or production to create the app, then
-store the printed id in the matching variable (or environment secret). **Update
-Edge App** deploys on push to `development` (stage) and `master` (production),
-and can also be run by hand against stage.
+Run **Initialize Edge App** against stage or production to create the app. No
+Edge App ID is required beforehand — Initialize creates the app, then writes the
+new id into `STAGE_EDGE_APP_ID` or `PRODUCTION_EDGE_APP_ID` automatically.
+**Update Edge App** deploys on push to `development` (stage) and `master`
+(production), and can also be run by hand against stage.
 
 ## Configuration
 

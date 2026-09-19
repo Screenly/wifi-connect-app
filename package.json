@@ -1,0 +1,42 @@
+{
+  "name": "qr-wifi-app",
+  "version": "0.1.0",
+  "description": "Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.",
+  "type": "module",
+  "scripts": {
+    "prebuild": "bun run type-check",
+    "generate-mock-data": "screenly edge-app run --generate-mock-data",
+    "predev": "bun run generate-mock-data",
+    "dev": "edge-apps-scripts dev",
+    "build": "edge-apps-scripts build",
+    "build:dev": "edge-apps-scripts build:dev",
+    "build:prod": "edge-apps-scripts build",
+    "test": "vitest run --passWithNoTests",
+    "test:unit": "vitest run --passWithNoTests",
+    "lint": "edge-apps-scripts lint --fix",
+    "format": "prettier --write src/ README.md index.html",
+    "format:check": "prettier --check src/ README.md index.html",
+    "deploy": "bun run build && screenly edge-app deploy --path=dist/",
+    "type-check": "edge-apps-scripts type-check",
+    "screenshots": "edge-apps-scripts screenshots"
+  },
+  "prettier": "./.prettierrc.json",
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@screenly/edge-apps": "^26.8.0",
+    "@types/node": "^25.4.0",
+    "@types/qrcode": "^1.5.6",
+    "jsdom": "^28.1.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9"
+  },
+  "author": "Salman Faris",
+  "trustedDependencies": [
+    "@parcel/watcher",
+    "@swc/core"
+  ]
+}

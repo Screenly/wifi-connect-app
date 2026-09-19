@@ -1,0 +1,370 @@
+@layer theme, base, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import '@screenly/edge-apps/styles' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+@layer base {
+  :root {
+    /* Matches @screenly/edge-apps' own DEFAULT_THEME_COLORS.primary, so the
+       no-custom-accent case needs no JS to look right — see the inline
+       script in index.html for why a *custom* accent doesn't flicker in
+       either. */
+    --accent: var(--theme-color-primary, #972eff);
+    /* Overridden from main.ts via bg_color/text_color once settings are
+       read — these defaults only cover the moment before that JS runs and
+       the case where an operator leaves them unset. */
+    --bg: #08060f;
+    --ink: #ffffff;
+    /* Darkened before it hits the background glow — a pale operator accent
+       used to wash out straight at full strength and hurt legibility, so we
+       mix it toward the background instead of using it raw. */
+    --accent-glow: color-mix(in srgb, var(--accent) 55%, var(--bg));
+    /* Lightened tints for small accent-colored text/iconography, which read
+       poorly in the raw accent against this dark background. */
+    --accent-tint: color-mix(in srgb, var(--accent) 30%, white);
+    --accent-tint-2: color-mix(in srgb, var(--accent) 50%, white);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Several elements below set `display: flex`, which has the same
+     specificity as the UA stylesheet's `[hidden] { display: none }` and
+     would otherwise win by being declared later. Restate it explicitly so
+     toggling the `hidden` property from main.ts actually hides them. */
+  [hidden] {
+    display: none !important;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--bg);
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      sans-serif;
+  }
+
+  #app {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* The card *is* the screen — a full-bleed surface, not a floating inset
+     panel. Sized as a share of the viewport with no fixed pixel ceiling —
+     Screenly displays range from small signage strips to 4K+ totems, and a
+     px cap tuned for one leaves content floating tiny on the other. */
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 5cqh, 3.5rem);
+    width: 100%;
+    height: 100%;
+    padding: clamp(1.5rem, 7.4cqh, 5rem) clamp(1.5rem, 6.25cqw, 5rem);
+    background-color: var(--bg);
+    background-image: radial-gradient(
+      75% 95% at 50% -10%,
+      var(--accent-glow) 0%,
+      transparent 68%
+    );
+    /* Lets every cqw/cqh value below scale off the card's own box, so type
+       and spacing track the card's actual real estate. */
+    container-type: size;
+    color: var(--ink);
+    overflow: hidden;
+  }
+
+  /* The header message is operator-editable free text. main.ts truncates
+     every value over 60 characters and appends an ellipsis; the pill also
+     caps itself at the card's width and ellipsizes rather than pushing
+     past the edge of the screen. */
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    max-width: 100%;
+    padding: clamp(0.6rem, 1.48cqh, 1.6rem) clamp(1rem, 2.08cqw, 2.4rem);
+    border-radius: 999px;
+    border: 2px solid color-mix(in srgb, var(--accent-tint-2) 50%, transparent);
+    color: var(--accent-tint);
+    /* The cqh-driven preferred value is what actually tracks the card's
+       real size; the rem ceiling is only a sanity cap for pathological
+       aspect ratios. Keep ceilings generous — a low one (tuned by eye
+       against 1080p) silently caps every element well before true 4K
+       (3840/4096-tall-or-wide) displays reach it, so text stops growing
+       past 1080p-ish even though the product explicitly targets 4K+. */
+    font-size: clamp(0.85rem, 3.15cqh, 5rem);
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .badge-icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+  }
+
+  #badge-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    /* No effect while landscape keeps white-space: nowrap; lets a
+       60-character no-space message wrap in portrait instead of clipping. */
+    overflow-wrap: anywhere;
+  }
+
+  /* SSIDs are truncated to 32 UTF-8 bytes in main.ts. The clamp() below is
+     tuned for typical names — a name near that limit would wrap or overflow
+     at this size. fitSsidFontSize() shrinks the font-size (inline style,
+     read back from this clamp as the starting point) until the name fits
+     on the single line implied by white-space: nowrap below, so CSS only
+     needs to supply the ceiling. */
+  .ssid {
+    margin: 0;
+    max-width: 100%;
+    font-size: clamp(2.4rem, min(15.9cqh, 9cqw), 22rem);
+    /* Tight values (~1.0) clip descenders on g/j/p/q/y. 1.15 keeps the
+       heading compact without cutting those tails. overflow: hidden stays
+       so long names don't spill sideways while fitSsidFontSize() shrinks. */
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5em 1em;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+    font-size: clamp(1rem, 2.6cqh, 4.5rem);
+    font-weight: 600;
+  }
+
+  .status-badge svg {
+    width: 1.3em;
+    height: 1.3em;
+    flex-shrink: 0;
+  }
+
+  /* Row pairing the QR code with the typed-password fallback. When the
+     password block (and its divider) are hidden, this row shrinks to just
+     the QR block, and .card's align-items: center re-centers that narrower
+     box on its own — no extra centering logic needed, and nothing else on
+     the card moves or resizes. */
+  .content-row {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 4cqw, 4.5rem);
+  }
+
+  .qr-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.5rem, 2cqh, 1.4rem);
+  }
+
+  .qr-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: min(20.2cqw, 35.9cqh);
+    aspect-ratio: 1 / 1;
+    padding: clamp(0.8rem, 3.15cqh, 2.4rem);
+    background: #ffffff;
+    border-radius: clamp(16px, 2.96cqh, 32px);
+    box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.55);
+  }
+
+  .qr-code {
+    width: 100%;
+    height: 100%;
+  }
+
+  .qr-code svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .qr-caption {
+    margin: 0;
+    font-size: clamp(0.85rem, 3.15cqh, 5rem);
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .divider {
+    align-self: stretch;
+    width: clamp(1px, 0.15cqw, 3px);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .password-block {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.4rem, 2cqh, 1.4rem);
+    min-width: 0;
+  }
+
+  .password-label {
+    font-size: clamp(0.85rem, 3.15cqh, 5rem);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-tint-2);
+  }
+
+  .password {
+    font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+    font-size: clamp(1.5rem, 8.9cqh, 13rem);
+    font-weight: 700;
+    color: var(--ink);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* Portrait rebuilds the layout as a grid instead of the landscape row.
+     `.content-row` steps out of the way via `display: contents` so its
+     children (the QR block, divider, password block) become direct grid
+     items, positioned by the explicit `grid-row`s below. The password
+     block's row keeps a minimum height whether or not it has content
+     — swapped per state so the reserved row only appears where the QR
+     needs to sit still (5a/5b), not where there's nothing to keep steady
+     against (the open-network state). */
+  @media (orientation: portrait) {
+    .card {
+      display: grid;
+      grid-template-columns: 100%;
+      justify-items: center;
+      align-content: center;
+      row-gap: clamp(0.8rem, 3.65cqh, 2.4rem);
+      padding: clamp(1.2rem, 5.2cqh, 4rem) clamp(1.2rem, 7.4cqw, 4rem);
+      background-image: radial-gradient(
+        85% 60% at 50% -5%,
+        var(--accent-glow) 0%,
+        transparent 70%
+      );
+    }
+
+    /* password shown/hidden: badge, title, QR, password — row 4 keeps a
+       minimum height even with the password block hidden, so the QR
+       (row 3) doesn't jump for typical passwords. minmax lets a long
+       (up to 63-character) password grow the row instead of clipping. */
+    .card.state-password,
+    .card.state-no-password {
+      grid-template-rows: auto auto auto minmax(
+          clamp(4rem, 9.06cqh, 24rem),
+          auto
+        );
+    }
+
+    /* open network: badge, title, open-network pill, QR — no fixed
+       reservation, since there's no password row to stay steady against. */
+    .card.state-open {
+      grid-template-rows: auto auto auto auto;
+    }
+
+    .badge {
+      grid-row: 1;
+      max-width: 85cqw;
+      font-size: clamp(0.75rem, 1.77cqh, 5rem);
+      padding: clamp(0.5rem, 0.94cqh, 1.2rem) clamp(0.9rem, 3.7cqw, 2.2rem);
+      /* The header message is operator-editable free text, so it can run
+         longer than the pill is wide — wrap instead of overflowing. */
+      white-space: normal;
+      text-align: center;
+    }
+
+    .badge-icon {
+      display: none;
+    }
+
+    .ssid {
+      grid-row: 2;
+      font-size: clamp(2rem, min(7.8cqh, 11cqw), 15rem);
+    }
+
+    .status-badge {
+      grid-row: 3;
+    }
+
+    .content-row {
+      display: contents;
+    }
+
+    .state-password .qr-block,
+    .state-no-password .qr-block {
+      grid-row: 3;
+    }
+
+    .state-open .qr-block {
+      grid-row: 4;
+    }
+
+    /* The landscape sizing above is calibrated against a 1920-wide,
+       1080-tall reference, so it renders far too small once the card is
+       taller than it is wide — recalibrated here against the portrait
+       design's own 1080x1920 reference. */
+    .qr-block {
+      gap: clamp(0.4rem, 1.15cqh, 1rem);
+    }
+
+    .qr-frame {
+      width: min(56.3cqw, 31.67cqh);
+      padding: clamp(0.7rem, 2.29cqh, 2rem);
+      border-radius: clamp(14px, 2.08cqh, 28px);
+    }
+
+    .qr-caption {
+      font-size: clamp(0.75rem, 1.77cqh, 5rem);
+    }
+
+    .divider {
+      display: none;
+    }
+
+    .state-password .password-block,
+    .state-no-password .password-block {
+      grid-row: 4;
+    }
+
+    .password-block {
+      align-items: center;
+      gap: clamp(0.3rem, 1.04cqh, 0.9rem);
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .password-label {
+      font-size: clamp(0.75rem, 1.77cqh, 5rem);
+    }
+
+    .password {
+      font-size: clamp(1.3rem, 4.375cqh, 12rem);
+      text-align: center;
+      max-width: 100%;
+    }
+  }
+}

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wi-Fi QR Share - Screenly Edge App</title>
+    <!-- Linked here (not just `import`-ed from main.ts) so it loads as a
+         blocking stylesheet before first paint. main.ts's script tag is a
+         deferred module, so without this the browser paints the raw,
+         unstyled HTML first — most visibly, the badge's SVG icon has no
+         width/height attributes and no CSS yet to size it, so it flashes
+         at the browser's default replaced-element size (~300px) on a
+         plain white body background for a frame or two on every load. -->
+    <link rel="stylesheet" href="/src/style.css" />
+    <script src="screenly.js?version=1"></script>
+    <script>
+      // setupTheme() (called from src/main.ts) sets --theme-color-primary,
+      // but that script is deferred and runs after first paint, so the icon
+      // and glow would flash from the CSS fallback color to the real accent
+      // color once it runs. screenly.js above is a blocking classic script,
+      // so window.screenly is already populated here — apply the accent
+      // immediately, before anything paints, mirroring the same "ignore
+      // unset/white" rule @screenly/edge-apps' getPrimaryColor() uses.
+      ;(function () {
+        var accent =
+          window.screenly &&
+          window.screenly.settings &&
+          window.screenly.settings.screenly_color_accent
+        if (accent && accent.toLowerCase() !== '#ffffff') {
+          document.documentElement.style.setProperty(
+            '--theme-color-primary',
+            accent,
+          )
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <main id="app">
+      <section class="card state-no-password">
+        <div class="badge">
+          <svg
+            class="badge-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M2 8.5C7.5 3.5 16.5 3.5 22 8.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M5.5 12.5C9.5 9 14.5 9 18.5 12.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 16.5C10.9 14.9 13.1 14.9 15 16.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <circle cx="12" cy="19.5" r="1.4" fill="currentColor" />
+          </svg>
+          <span id="badge-text"></span>
+        </div>
+
+        <h1 id="ssid" class="ssid">&nbsp;</h1>
+
+        <div id="open-badge" class="status-badge" hidden>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <rect
+              x="5"
+              y="11"
+              width="14"
+              height="10"
+              rx="2.5"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <path
+              d="M8 11V8a4 4 0 0 1 7.5-1.9"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span id="open-badge-text"
+            >Open network &ndash; no password needed</span
+          >
+        </div>
+
+        <div id="content-row" class="content-row">
+          <div class="qr-block">
+            <div class="qr-frame">
+              <div
+                id="qr-code"
+                class="qr-code"
+                role="img"
+                aria-label="Wi-Fi QR code"
+              ></div>
+            </div>
+            <p id="qr-caption" class="qr-caption">Scan to join</p>
+          </div>
+
+          <div id="divider" class="divider" aria-hidden="true"></div>
+
+          <div id="password-row" class="password-block" hidden>
+            <span id="password-label" class="password-label"
+              >Or type the password</span
+            >
+            <span id="password" class="password"></span>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -19,7 +19,7 @@ settings:
         advanced: true
         display_order: 6
         help_text: >-
-          Color for the screen background — a hex code (e.g. #08060f) or a
+          Color for the screen background: a hex code (e.g. #08060f) or a
           CSS color name (e.g. black). Falls back to the default if it isn't
           a recognized color.
   locale:
@@ -59,7 +59,7 @@ settings:
         advanced: true
         display_order: 7
         help_text: >-
-          Color for the on-screen text — a hex code (e.g. #ffffff) or a CSS
+          Color for the on-screen text: a hex code (e.g. #ffffff) or a CSS
           color name (e.g. white). Falls back to a contrasting color
           automatically only if it matches the background color too closely
           to be visible at all.

@@ -1,6 +1,6 @@
 ---
 syntax: manifest_v1
-description: 'Instantly share Wi-Fi credentials on your digital signage screens with this lightweight QR code generator for Screenly Edge Apps.'
+description: 'Instantly share Wi-Fi credentials on your screens.'
 icon: https://playground.srly.io/edge-apps/icons/qr-wifi-app.svg
 author: Screenly, Inc.
 categories:
@@ -19,7 +19,7 @@ settings:
         advanced: true
         display_order: 6
         help_text: >-
-          Color for the screen background — a hex code (e.g. #08060f) or a
+          Color for the screen background: a hex code (e.g. #08060f) or a
           CSS color name (e.g. black). Falls back to the default if it isn't
           a recognized color.
   locale:
@@ -46,7 +46,7 @@ settings:
         type: string
         advanced: true
         display_order: 3
-        help_text: Sentry Client Key from Sentry SDK for error capturing.
+        help_text: Sentry DSN used to report app errors.
   text_color:
     type: string
     default_value: '#ffffff'
@@ -59,10 +59,9 @@ settings:
         advanced: true
         display_order: 7
         help_text: >-
-          Color for the on-screen text — a hex code (e.g. #ffffff) or a CSS
-          color name (e.g. white). Falls back to a contrasting color
-          automatically only if it matches the background color too closely
-          to be visible at all.
+          Color for the on-screen text: a hex code (e.g. #ffffff) or a CSS
+          color name (e.g. white). Falls back to black or white only if it
+          is too close to the background to read.
   wifi_header_message:
     type: string
     default_value: 'WiFi Details'
@@ -72,7 +71,7 @@ settings:
       schema_version: 1
       properties:
         type: string
-        display_order: 2
+        display_order: 5
         help_text: >-
           The message shown in the pill at the top of the screen. Keep it
           under 60 characters so it isn't truncated.
@@ -95,8 +94,7 @@ settings:
     help_text:
       schema_version: 1
       properties:
-        type: string
-        display_order: 3
+        display_order: 2
         help_text: |
           The Wi-Fi password. Leave blank for an open network that doesn't require one.
   wifi_security:
@@ -126,10 +124,10 @@ settings:
       schema_version: 1
       properties:
         type: boolean
-        advanced: true
-        display_order: 2
-        help_text: |
-          Also display the Wi-Fi password as text on screen, for guests who'd rather type it in by hand. On by default. Turn it off if the password should only be readable by scanning the QR code, not by anyone glancing at or photographing the screen.
+        display_order: 3
+        help_text: >
+          Also show the Wi-Fi password as text on screen. On by default.
+          Turn off to keep the password only in the QR code.
   wifi_ssid:
     type: string
     title: Wi-Fi Network Name (SSID)
@@ -140,5 +138,5 @@ settings:
         type: string
         display_order: 1
         help_text: >-
-          The name of the Wi-Fi network guests should connect to. Maximum
-          32 bytes (the IEEE 802.11 SSID limit).
+          The name of the Wi-Fi network to connect to. Maximum 32 bytes
+          (the IEEE 802.11 SSID limit).

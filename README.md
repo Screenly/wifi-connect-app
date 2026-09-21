@@ -44,18 +44,20 @@ screenly edge-app instance create
 ```
 
 Stage and production share a single `screenly.yml` with no `id`. The Edge App ID
-for each environment is supplied by GitHub:
+for each environment is supplied by GitHub repository variables:
 
-| Source                                       | Used when                                                                |
-| -------------------------------------------- | ------------------------------------------------------------------------ |
-| `EDGE_APP_ID` environment secret             | Set on the `stage` or `production` GitHub Environment (takes precedence) |
-| `STAGE_EDGE_APP_ID` repository variable      | Fallback for stage                                                       |
-| `PRODUCTION_EDGE_APP_ID` repository variable | Fallback for production                                                  |
+| Variable                 | Environment |
+| ------------------------ | ----------- |
+| `STAGE_EDGE_APP_ID`      | stage       |
+| `PRODUCTION_EDGE_APP_ID` | production  |
 
-Run **Initialize Edge App** against stage or production to create the app, then
-store the printed id in the matching variable (or environment secret). **Update
-Edge App** deploys on push to `development` (stage) and `master` (production),
-and can also be run by hand against stage.
+Run **Initialize Edge App** against stage or production to create the app. No
+Edge App ID is required beforehand — Initialize creates the app and prints the
+new id (and tries to write `STAGE_EDGE_APP_ID` / `PRODUCTION_EDGE_APP_ID`).
+If auto-set is blocked by token permissions, copy the id from the job summary
+into the matching repository variable. **Update Edge App** deploys on push to
+`development` (stage) and `master` (production), and can also be run by hand
+against stage.
 
 ## Configuration
 
@@ -94,13 +96,3 @@ bun run screenshots
 ```
 
 This generates WebP screenshots for all 10 supported Screenly resolutions into the `screenshots/` directory, using [`@screenly/edge-apps/test/screenshots`](https://github.com/Screenly/edge-apps-library#screenshot-testing) to mock `screenly.js` and Playwright to capture each one — once with `wifi_show_password` off (`qr-wifi-app-*.webp`) and once with it on (`qr-wifi-app-with-password-*.webp`), so both states stay visually reviewable.
-
-## CI/CD
-
-This repo follows the same [`Screenly/edge-apps-actions`](https://github.com/Screenly/edge-apps-actions) `@v26.9.0` workflow used across Screenly's Edge Apps (matching [`Screenly/8bit-fireplace`](https://github.com/Screenly/8bit-fireplace)):
-
-- **[Checks](.github/workflows/checks.yml)** — runs on every push/PR to `development` and `master`: format check, lint, build, test.
-- **[Update Edge App](.github/workflows/update-edge-app.yml)** — deploys to **stage** on push to `development` (or manual dispatch), and to **production** on push to `master`.
-- **[Initialize Edge App](.github/workflows/initialize-edge-app.yml)** — one-off, manually triggered (`workflow_dispatch`) to register a brand-new Edge App + instance in `stage` or `production`.
-
-Before these can actually deploy, each environment needs to be set up once in the repo (Settings → Environments → `stage` / `production`), with a `SCREENLY_API_TOKEN` secret. See [Deployment](#deployment) for how Edge App IDs are supplied via GitHub variables/secrets.

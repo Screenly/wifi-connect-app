@@ -31,10 +31,53 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.environment == 'production' && 'master' || github.ref }}
-      - uses: Screenly/edge-apps-actions/initialize@v26.9.0
+
+      - uses: Screenly/edge-apps-actions/initialize@v26.9.1
         with:
           screenly_api_token: ${{ secrets.SCREENLY_API_TOKEN }}
           edge_app_name: ${{ inputs.edge_app_name }}
           edge_app_title: ${{ inputs.edge_app_title }}
           environment: ${{ inputs.environment }}
-          edge_app_id: ${{ secrets.EDGE_APP_ID || (inputs.environment == 'production' && vars.PRODUCTION_EDGE_APP_ID) || (inputs.environment == 'stage' && vars.STAGE_EDGE_APP_ID) || '' }}
+          edge_app_id: ${{ (inputs.environment == 'production' && vars.PRODUCTION_EDGE_APP_ID) || (inputs.environment == 'stage' && vars.STAGE_EDGE_APP_ID) || '' }}
+
+      - name: Persist Edge App ID to GitHub Variables
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          MANIFEST="${MANIFEST_FILE_NAME:-screenly.yml}"
+          if [ ! -f "$MANIFEST" ]; then
+            echo "Manifest $MANIFEST not found after initialize"
+            exit 1
+          fi
+
+          ID="$(grep -E '^id:[[:space:]]*' "$MANIFEST" | head -1 | awk '{print $2}' | tr -d "\"'")"
+          if [ -z "$ID" ]; then
+            echo "No id field found in $MANIFEST"
+            cat "$MANIFEST"
+            exit 1
+          fi
+
+          if [ "${{ inputs.environment }}" = "stage" ]; then
+            VAR_NAME=STAGE_EDGE_APP_ID
+          else
+            VAR_NAME=PRODUCTION_EDGE_APP_ID
+          fi
+
+          {
+            echo "## Edge App ID"
+            echo ""
+            echo "Created Edge App id: \`$ID\`"
+            echo ""
+            echo "Store it as repository variable \`$VAR_NAME\` (Settings → Secrets and variables → Actions → Variables) if auto-set below does not succeed."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if gh variable set "$VAR_NAME" --body "$ID" --repo "${{ github.repository }}"; then
+            echo "Set repository variable $VAR_NAME=$ID"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Automatically set \`$VAR_NAME\`." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::Could not auto-set $VAR_NAME with GITHUB_TOKEN. Set it manually to: $ID"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Auto-set failed** — set \`$VAR_NAME=$ID\` manually." >> "$GITHUB_STEP_SUMMARY"
+          fi

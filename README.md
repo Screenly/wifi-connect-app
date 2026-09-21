@@ -46,10 +46,10 @@ screenly edge-app instance create
 Stage and production share a single `screenly.yml` with no `id`. The Edge App ID
 for each environment is supplied by GitHub repository variables:
 
-| Variable                   | Environment |
-| -------------------------- | ----------- |
-| `STAGE_EDGE_APP_ID`        | stage       |
-| `PRODUCTION_EDGE_APP_ID`   | production  |
+| Variable                 | Environment |
+| ------------------------ | ----------- |
+| `STAGE_EDGE_APP_ID`      | stage       |
+| `PRODUCTION_EDGE_APP_ID` | production  |
 
 Run **Initialize Edge App** against stage or production to create the app. No
 Edge App ID is required beforehand — Initialize creates the app and prints the

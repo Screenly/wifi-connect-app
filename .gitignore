@@ -4,7 +4,6 @@ dist/
 .DS_Store
 mock-data.yml
 instance.yml
-screenly_qc.yml
 coverage/
 .claude/
 package-lock.json

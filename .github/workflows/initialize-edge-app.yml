@@ -32,25 +32,13 @@ jobs:
         with:
           ref: ${{ inputs.environment == 'production' && 'master' || github.ref }}
 
-      # First-time stage init has no STAGE_EDGE_APP_ID yet, so edge-apps-actions
-      # still selects screenly_qc.yml. This repo keeps a single screenly.yml —
-      # copy it for the runner only so create can proceed without a committed
-      # dual manifest.
-      - name: Ensure stage manifest for first-time init
-        if: inputs.environment == 'stage'
-        run: |
-          if [ ! -f screenly_qc.yml ]; then
-            cp screenly.yml screenly_qc.yml
-            echo "Created screenly_qc.yml from screenly.yml for first-time stage init"
-          fi
-
-      - uses: Screenly/edge-apps-actions/initialize@v26.9.0
+      - uses: Screenly/edge-apps-actions/initialize@v26.9.1
         with:
           screenly_api_token: ${{ secrets.SCREENLY_API_TOKEN }}
           edge_app_name: ${{ inputs.edge_app_name }}
           edge_app_title: ${{ inputs.edge_app_title }}
           environment: ${{ inputs.environment }}
-          edge_app_id: ${{ secrets.EDGE_APP_ID || (inputs.environment == 'production' && vars.PRODUCTION_EDGE_APP_ID) || (inputs.environment == 'stage' && vars.STAGE_EDGE_APP_ID) || '' }}
+          edge_app_id: ${{ (inputs.environment == 'production' && vars.PRODUCTION_EDGE_APP_ID) || (inputs.environment == 'stage' && vars.STAGE_EDGE_APP_ID) || '' }}
 
       - name: Persist Edge App ID to GitHub Variables
         env:

@@ -1,3 +1,5 @@
+[![Version](https://img.shields.io/github/v/release/Screenly/wifi-connect-app)](https://github.com/Screenly/wifi-connect-app/releases/latest)
+
 # Wi-Fi QR Share
 
 ![1080p Screenshot](screenshots/qr-wifi-app-with-password-1920x1080.webp)

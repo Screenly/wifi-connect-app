@@ -1,3 +1,5 @@
+[![Version](https://img.shields.io/github/v/release/Screenly/wifi-connect-app)](https://github.com/Screenly/wifi-connect-app/releases/latest)
+
 # Wi-Fi QR Share
 
 ![1080p Screenshot](screenshots/qr-wifi-app-with-password-1920x1080.webp)
@@ -58,6 +60,22 @@ If auto-set is blocked by token permissions, copy the id from the job summary
 into the matching repository variable. **Update Edge App** deploys on push to
 `development` (stage) and `master` (production), and can also be run by hand
 against stage.
+
+### Releasing
+
+Pushes to `master` deploy to stage automatically. To release to production, tag a commit on `master` and push the tag (the workflow refuses tags not on `master`):
+
+```bash
+git checkout master && git pull
+git tag v26.10.0
+git push origin v26.10.0
+```
+
+Then publish a GitHub Release whose notes list the pull requests merged since the previous release. Add `--draft` to review the notes before publishing:
+
+```bash
+gh release create v26.10.0 --verify-tag --generate-notes --title v26.10.0
+```
 
 ## Configuration
 

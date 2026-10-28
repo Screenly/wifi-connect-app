@@ -55,11 +55,9 @@ for each environment is supplied by GitHub repository variables:
 
 Run **Initialize Edge App** against stage or production to create the app. No
 Edge App ID is required beforehand — Initialize creates the app and prints the
-new id (and tries to write `STAGE_EDGE_APP_ID` / `PRODUCTION_EDGE_APP_ID`).
-If auto-set is blocked by token permissions, copy the id from the job summary
-into the matching repository variable. **Update Edge App** deploys on push to
-`development` (stage) and `master` (production), and can also be run by hand
-against stage.
+new id. Copy it into the matching repository variable. **Update Edge App**
+deploys to stage on push to `master` and to production on a `v*` tag on
+`master` (see [Releasing](#releasing)), and can also be run by hand against stage.
 
 ### Releasing
 

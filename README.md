@@ -1,3 +1,5 @@
+[![Version](https://img.shields.io/github/v/release/Screenly/wifi-connect-app)](https://github.com/Screenly/wifi-connect-app/releases/latest)
+
 # Wi-Fi QR Share
 
 ![1080p Screenshot](screenshots/qr-wifi-app-with-password-1920x1080.webp)
@@ -53,11 +55,25 @@ for each environment is supplied by GitHub repository variables:
 
 Run **Initialize Edge App** against stage or production to create the app. No
 Edge App ID is required beforehand — Initialize creates the app and prints the
-new id (and tries to write `STAGE_EDGE_APP_ID` / `PRODUCTION_EDGE_APP_ID`).
-If auto-set is blocked by token permissions, copy the id from the job summary
-into the matching repository variable. **Update Edge App** deploys on push to
-`development` (stage) and `master` (production), and can also be run by hand
-against stage.
+new id. Copy it into the matching repository variable. **Update Edge App**
+deploys to stage on push to `master` and to production on a `v*` tag on
+`master` (see [Releasing](#releasing)), and can also be run by hand against stage.
+
+### Releasing
+
+Pushes to `master` start a stage deploy, which waits for approval. To release to production, tag a commit on `master` and push the tag (the workflow refuses tags not on `master`); the production deploy also waits for approval:
+
+```bash
+git checkout master && git pull
+git tag v26.10.0
+git push origin v26.10.0
+```
+
+Then publish a GitHub Release whose notes list the pull requests merged since the previous release. Add `--draft` to review the notes before publishing:
+
+```bash
+gh release create v26.10.0 --verify-tag --generate-notes --title v26.10.0
+```
 
 ## Configuration
 
